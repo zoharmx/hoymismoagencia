@@ -198,11 +198,12 @@ function DashboardContent() {
 
   const filteredClients = clients
     .filter((client) => {
-      // Filtro de búsqueda
+      // Filtro de búsqueda - manejar campos undefined
+      const searchLower = searchTerm.toLowerCase()
       const matchesSearch =
-        client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.clientId.toLowerCase().includes(searchTerm.toLowerCase())
+        (client.name || '').toLowerCase().includes(searchLower) ||
+        (client.email || '').toLowerCase().includes(searchLower) ||
+        (client.clientId || '').toLowerCase().includes(searchLower)
 
       // Filtro de tipo
       const matchesType =
@@ -219,9 +220,9 @@ function DashboardContent() {
     .sort((a, b) => {
       switch (clientSortBy) {
         case 'name':
-          return a.name.localeCompare(b.name)
+          return (a.name || '').localeCompare(b.name || '')
         case 'date':
-          return b.createdAt.toMillis() - a.createdAt.toMillis()
+          return (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0)
         case 'spending':
           return (b.totalSpent || 0) - (a.totalSpent || 0)
         default:
@@ -230,16 +231,24 @@ function DashboardContent() {
     })
 
   const filteredShipments = shipments.filter(
-    (shipment) =>
-      shipment.shipmentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      shipment.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      shipment.trackingNumber?.toLowerCase().includes(searchTerm.toLowerCase())
+    (shipment) => {
+      const searchLower = searchTerm.toLowerCase()
+      return (
+        (shipment.shipmentId || '').toLowerCase().includes(searchLower) ||
+        (shipment.clientName || '').toLowerCase().includes(searchLower) ||
+        (shipment.trackingNumber || '').toLowerCase().includes(searchLower)
+      )
+    }
   )
 
   const filteredInvoices = invoices.filter(
-    (invoice) =>
-      invoice.invoiceId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.clientName.toLowerCase().includes(searchTerm.toLowerCase())
+    (invoice) => {
+      const searchLower = searchTerm.toLowerCase()
+      return (
+        (invoice.invoiceId || '').toLowerCase().includes(searchLower) ||
+        (invoice.clientName || '').toLowerCase().includes(searchLower)
+      )
+    }
   )
 
   const handleFormSuccess = () => {

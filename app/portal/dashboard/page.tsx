@@ -88,7 +88,7 @@ export default function PortalDashboard() {
 
   const activeShipments = shipments.filter(s => s.status !== 'tramite-finalizado' && s.status !== 'cancelado')
   const pendingInvoices = invoices.filter(i => i.status === 'pendiente')
-  const totalPaid = invoices.filter(i => i.status === 'pagada').reduce((sum, inv) => sum + inv.total, 0)
+  const totalPaid = invoices.filter(i => i.status === 'pagada').reduce((sum, inv) => sum + (inv.total || 0), 0)
   const deliveryRate = shipments.length > 0
     ? Math.round((shipments.filter(s => s.status === 'tramite-finalizado').length / shipments.length) * 100)
     : 0
@@ -508,7 +508,7 @@ export default function PortalDashboard() {
                             Dirección
                           </label>
                           <textarea
-                            value={`${client.address.street}\n${client.address.city}, ${client.address.state} ${client.address.zipCode}\n${client.address.country}`}
+                            value={client.address ? `${client.address.street || ''}\n${client.address.city || ''}, ${client.address.state || ''} ${client.address.zipCode || ''}\n${client.address.country || ''}` : 'No especificada'}
                             className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
                             rows={4}
                             readOnly
