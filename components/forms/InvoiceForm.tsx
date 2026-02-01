@@ -304,8 +304,8 @@ export default function InvoiceForm({ onClose, onSuccess }: InvoiceFormProps) {
                           )
                           .map((shipment) => (
                             <option key={shipment.id} value={shipment.id}>
-                              {shipment.shipmentId} - $
-                              {shipment.totalCost.toFixed(2)}
+                              {shipment.shipmentId || shipment.folio} - $
+                              {(shipment.totalCost ?? 0).toFixed(2)}
                             </option>
                           ))}
                       </select>

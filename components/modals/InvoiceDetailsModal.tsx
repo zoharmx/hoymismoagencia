@@ -120,7 +120,7 @@ export default function InvoiceDetailsModal({ invoice, onClose, onSuccess }: Inv
               <div className="text-right">
                 <p className="text-sm text-slate-400 mb-1">Total</p>
                 <p className="text-2xl font-bold text-white">
-                  ${invoice.total.toFixed(2)} {invoice.currency}
+                  ${(invoice.total ?? 0).toFixed(2)} {invoice.currency || 'USD'}
                 </p>
               </div>
             </div>
@@ -160,15 +160,15 @@ export default function InvoiceDetailsModal({ invoice, onClose, onSuccess }: Inv
           <div className="p-4 bg-slate-800/50 rounded-lg">
             <h3 className="text-white font-semibold mb-3">Detalles</h3>
             <div className="space-y-2">
-              {invoice.items.map((item, index) => (
+              {(invoice.items || []).map((item, index) => (
                 <div key={index} className="flex justify-between items-center py-2 border-b border-slate-700/50 last:border-0">
                   <div>
-                    <p className="text-white">{item.description}</p>
+                    <p className="text-white">{item.description || 'Item'}</p>
                     <p className="text-sm text-slate-400">
-                      {item.quantity} x ${item.unitPrice.toFixed(2)}
+                      {item.quantity ?? 1} x ${(item.unitPrice ?? 0).toFixed(2)}
                     </p>
                   </div>
-                  <p className="text-white font-semibold">${item.total.toFixed(2)}</p>
+                  <p className="text-white font-semibold">${(item.total ?? 0).toFixed(2)}</p>
                 </div>
               ))}
             </div>
@@ -176,13 +176,13 @@ export default function InvoiceDetailsModal({ invoice, onClose, onSuccess }: Inv
             <div className="mt-4 pt-4 border-t border-slate-700 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-400">Subtotal</span>
-                <span className="text-white">${invoice.subtotal.toFixed(2)}</span>
+                <span className="text-white">${(invoice.subtotal ?? 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-400">Impuestos</span>
-                <span className="text-white">${invoice.tax.toFixed(2)}</span>
+                <span className="text-white">${(invoice.tax ?? 0).toFixed(2)}</span>
               </div>
-              {invoice.discount && invoice.discount > 0 && (
+              {invoice.discount != null && invoice.discount > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-400">Descuento</span>
                   <span className="text-green-400">-${invoice.discount.toFixed(2)}</span>
@@ -190,7 +190,7 @@ export default function InvoiceDetailsModal({ invoice, onClose, onSuccess }: Inv
               )}
               <div className="flex justify-between text-lg font-bold pt-2 border-t border-slate-700">
                 <span className="text-white">Total</span>
-                <span className="text-white">${invoice.total.toFixed(2)} {invoice.currency}</span>
+                <span className="text-white">${(invoice.total ?? 0).toFixed(2)} {invoice.currency || 'USD'}</span>
               </div>
             </div>
           </div>

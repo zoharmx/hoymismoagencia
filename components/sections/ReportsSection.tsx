@@ -103,7 +103,7 @@ export default function ReportsSection({ clients, shipments, invoices }: Reports
             <TrendingUp className="w-5 h-5 text-green-400" />
           </div>
           <p className="text-sm text-slate-400 mb-1">Ingresos Totales</p>
-          <p className="text-2xl font-bold text-white">${stats.totalRevenue.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-white">${(stats.totalRevenue ?? 0).toFixed(2)}</p>
           <p className="text-xs text-slate-500 mt-2">Facturas pagadas</p>
         </div>
 
@@ -114,7 +114,7 @@ export default function ReportsSection({ clients, shipments, invoices }: Reports
             </div>
           </div>
           <p className="text-sm text-slate-400 mb-1">Ingresos Pendientes</p>
-          <p className="text-2xl font-bold text-white">${stats.pendingRevenue.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-white">${(stats.pendingRevenue ?? 0).toFixed(2)}</p>
           <p className="text-xs text-slate-500 mt-2">Por cobrar</p>
         </div>
 
@@ -124,8 +124,8 @@ export default function ReportsSection({ clients, shipments, invoices }: Reports
               <Package className="w-6 h-6 text-blue-400" />
             </div>
           </div>
-          <p className="text-sm text-slate-400 mb-1">Valor Promedio Envío</p>
-          <p className="text-2xl font-bold text-white">${stats.avgShipmentValue.toFixed(2)}</p>
+          <p className="text-sm text-slate-400 mb-1">Valor Promedio Trámite</p>
+          <p className="text-2xl font-bold text-white">${(stats.avgShipmentValue ?? 0).toFixed(2)}</p>
           <p className="text-xs text-slate-500 mt-2">{shipments.length} envíos totales</p>
         </div>
 
@@ -190,8 +190,8 @@ export default function ReportsSection({ clients, shipments, invoices }: Reports
                       <span className="text-sm text-slate-300 truncate max-w-[200px]">{client.name}</span>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-white">${client.totalSpent.toFixed(2)}</p>
-                      <p className="text-xs text-slate-500">{client.totalShipments} envíos</p>
+                      <p className="text-sm font-semibold text-white">${(client.totalSpent ?? 0).toFixed(2)}</p>
+                      <p className="text-xs text-slate-500">{client.totalShipments ?? 0} trámites</p>
                     </div>
                   </div>
                   <div className="w-full bg-slate-800 rounded-full h-2">
@@ -230,7 +230,7 @@ export default function ReportsSection({ clients, shipments, invoices }: Reports
                   <div key={month}>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-slate-300 capitalize">{month}</span>
-                      <span className="text-sm font-semibold text-white">${revenue.toFixed(2)}</span>
+                      <span className="text-sm font-semibold text-white">${(revenue ?? 0).toFixed(2)}</span>
                     </div>
                     <div className="w-full bg-slate-800 rounded-full h-3">
                       <div

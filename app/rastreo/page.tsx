@@ -358,7 +358,7 @@ export default function RastreoPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-slate-500">Costo:</span>
-                        <span className="font-medium text-slate-200 text-right">${shipment.totalCost.toFixed(2)}</span>
+                        <span className="font-medium text-slate-200 text-right">${(shipment.totalCost ?? 0).toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-slate-500">Tracking:</span>

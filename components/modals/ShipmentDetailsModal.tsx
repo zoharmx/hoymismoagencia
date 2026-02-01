@@ -221,7 +221,7 @@ export default function ShipmentDetailsModal({ shipment, onClose, onSuccess }: S
               </div>
               <div>
                 <p className="text-slate-400">Valor Declarado</p>
-                <p className="text-white font-semibold">${shipment.declaredValue.toFixed(2)}</p>
+                <p className="text-white font-semibold">${(shipment.declaredValue ?? 0).toFixed(2)}</p>
               </div>
               {shipment.trackingNumber && (
                 <div>
@@ -241,24 +241,24 @@ export default function ShipmentDetailsModal({ shipment, onClose, onSuccess }: S
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-slate-400">Costo de envío</span>
-                <span className="text-white">${shipment.shippingCost.toFixed(2)}</span>
+                <span className="text-white">${(shipment.shippingCost ?? 0).toFixed(2)}</span>
               </div>
-              {shipment.insuranceCost && (
+              {shipment.insuranceCost != null && (
                 <div className="flex justify-between">
                   <span className="text-slate-400">Seguro</span>
-                  <span className="text-white">${shipment.insuranceCost.toFixed(2)}</span>
+                  <span className="text-white">${(shipment.insuranceCost ?? 0).toFixed(2)}</span>
                 </div>
               )}
-              {shipment.additionalCosts && (
+              {shipment.additionalCosts != null && (
                 <div className="flex justify-between">
                   <span className="text-slate-400">Costos adicionales</span>
-                  <span className="text-white">${shipment.additionalCosts.toFixed(2)}</span>
+                  <span className="text-white">${(shipment.additionalCosts ?? 0).toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between pt-2 border-t border-slate-700">
                 <span className="text-white font-semibold">Total</span>
                 <span className="text-white font-semibold text-lg">
-                  ${shipment.totalCost.toFixed(2)} {shipment.currency}
+                  ${(shipment.totalCost ?? 0).toFixed(2)} {shipment.currency || 'USD'}
                 </span>
               </div>
             </div>

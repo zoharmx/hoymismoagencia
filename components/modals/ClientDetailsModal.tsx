@@ -276,9 +276,9 @@ export default function ClientDetailsModal({ client, onClose, onSuccess, onEdit 
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <p className="text-slate-400">
-                        {shipment.origin.city} → {shipment.destination.city}
+                        {shipment.origin?.city || shipment.vehicleBrand || 'N/A'} → {shipment.destination?.city || shipment.oficina || 'N/A'}
                       </p>
-                      <p className="text-white font-semibold">${shipment.totalCost.toFixed(2)}</p>
+                      <p className="text-white font-semibold">${(shipment.totalCost ?? 0).toFixed(2)}</p>
                     </div>
                   </div>
                 ))}
