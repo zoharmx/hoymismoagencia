@@ -232,7 +232,7 @@ export default function UsersSection() {
                       </div>
                     )}
                   </div>
-                  {user.lastLogin && (
+                  {user.lastLogin?.toDate && (
                     <div className="mt-2 text-xs text-slate-500">
                       Último acceso: {user.lastLogin.toDate().toLocaleString()}
                     </div>

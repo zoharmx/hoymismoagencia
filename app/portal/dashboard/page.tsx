@@ -94,9 +94,9 @@ export default function PortalDashboard() {
     : 0
 
   const stats = [
-    { label: 'Envíos Activos', value: activeShipments.length.toString(), icon: Package, color: 'primary' },
-    { label: 'Total Enviado', value: shipments.length.toString(), icon: TrendingUp, color: 'green' },
-    { label: 'Facturas Pendientes', value: pendingInvoices.length.toString(), icon: FileText, color: 'orange' },
+    { label: 'Trámites Activos', value: String(activeShipments.length), icon: Package, color: 'primary' },
+    { label: 'Total Trámites', value: String(shipments.length), icon: TrendingUp, color: 'green' },
+    { label: 'Facturas Pendientes', value: String(pendingInvoices.length), icon: FileText, color: 'orange' },
     { label: 'Tasa de Éxito', value: `${deliveryRate}%`, icon: CheckCircle2, color: 'green' },
   ]
 
@@ -345,7 +345,7 @@ export default function PortalDashboard() {
                                 ${shipment.totalCost?.toFixed(2) || '0.00'}
                               </td>
                               <td className="py-4 px-4 text-sm text-slate-300">
-                                {shipment.fechaInicio
+                                {shipment.fechaInicio?.toDate?.()
                                   ? shipment.fechaInicio.toDate().toLocaleDateString()
                                   : 'Por confirmar'}
                               </td>
@@ -417,16 +417,16 @@ export default function PortalDashboard() {
                                 {invoice.invoiceId}
                               </td>
                               <td className="py-4 px-4 text-sm text-slate-300">
-                                {invoice.createdAt.toDate().toLocaleDateString()}
+                                {invoice.createdAt?.toDate?.().toLocaleDateString() || 'N/A'}
                               </td>
                               <td className="py-4 px-4 text-sm font-semibold text-white">
-                                ${invoice.total.toFixed(2)} {invoice.currency}
+                                ${(invoice.total ?? 0).toFixed(2)} {invoice.currency || 'USD'}
                               </td>
                               <td className="py-4 px-4">
                                 {getStatusBadge(invoice.status)}
                               </td>
                               <td className="py-4 px-4 text-sm text-slate-300">
-                                {invoice.dueDate.toDate().toLocaleDateString()}
+                                {invoice.dueDate?.toDate?.().toLocaleDateString() || 'N/A'}
                               </td>
                               <td className="py-4 px-4">
                                 <button

@@ -137,16 +137,16 @@ export default function InvoiceDetailsModal({ invoice, onClose, onSuccess }: Inv
             <div className="p-4 bg-slate-800/50 rounded-lg">
               <p className="text-sm text-slate-400 mb-1">Fecha de Emisión</p>
               <p className="text-white font-semibold">
-                {invoice.createdAt.toDate().toLocaleDateString()}
+                {invoice.createdAt?.toDate?.().toLocaleDateString() || 'N/A'}
               </p>
             </div>
             <div className="p-4 bg-slate-800/50 rounded-lg">
               <p className="text-sm text-slate-400 mb-1">Fecha de Vencimiento</p>
               <p className="text-white font-semibold">
-                {invoice.dueDate.toDate().toLocaleDateString()}
+                {invoice.dueDate?.toDate?.().toLocaleDateString() || 'N/A'}
               </p>
             </div>
-            {invoice.paidDate && (
+            {invoice.paidDate?.toDate && (
               <div className="p-4 bg-slate-800/50 rounded-lg">
                 <p className="text-sm text-slate-400 mb-1">Fecha de Pago</p>
                 <p className="text-white font-semibold">

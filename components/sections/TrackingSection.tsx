@@ -186,13 +186,13 @@ export default function TrackingSection() {
                       {trackingData.status === 'entregado' ? 'Entregado el' : 'Entrega Estimada'}
                     </p>
                     <p className="font-semibold text-white">
-                      {trackingData.actualDelivery
+                      {trackingData.actualDelivery?.toDate
                         ? trackingData.actualDelivery.toDate().toLocaleDateString('es-MX', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
                           })
-                        : trackingData.estimatedDelivery
+                        : trackingData.estimatedDelivery?.toDate
                           ? trackingData.estimatedDelivery.toDate().toLocaleDateString('es-MX', {
                               year: 'numeric',
                               month: 'long',
@@ -259,13 +259,13 @@ export default function TrackingSection() {
                             </div>
                             <div className="text-right">
                               <p className="text-sm text-slate-400">
-                                {event.date.toDate().toLocaleDateString('es-MX')}
+                                {event.date?.toDate?.().toLocaleDateString('es-MX') || 'N/A'}
                               </p>
                               <p className="text-xs text-slate-500">
-                                {event.date.toDate().toLocaleTimeString('es-MX', {
+                                {event.date?.toDate?.().toLocaleTimeString('es-MX', {
                                   hour: '2-digit',
                                   minute: '2-digit'
-                                })}
+                                }) || ''}
                               </p>
                             </div>
                           </div>

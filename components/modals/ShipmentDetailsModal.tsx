@@ -276,9 +276,9 @@ export default function ShipmentDetailsModal({ shipment, onClose, onSuccess }: S
                   <div key={index} className="flex gap-3 text-sm">
                     <div className="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-primary-500"></div>
                     <div className="flex-1">
-                      <p className="text-white font-semibold">{event.description}</p>
+                      <p className="text-white font-semibold">{event.description || 'Actualización'}</p>
                       <p className="text-slate-400">
-                        {event.location} - {event.date.toDate().toLocaleString()}
+                        {event.location || 'N/A'} - {event.date?.toDate?.().toLocaleString() || 'N/A'}
                       </p>
                     </div>
                   </div>

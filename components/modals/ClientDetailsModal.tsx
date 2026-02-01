@@ -316,9 +316,9 @@ export default function ClientDetailsModal({ client, onClose, onSuccess, onEdit 
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <p className="text-slate-400">
-                        Vence: {invoice.dueDate.toDate().toLocaleDateString()}
+                        Vence: {invoice.dueDate?.toDate?.().toLocaleDateString() || 'N/A'}
                       </p>
-                      <p className="text-white font-semibold">${invoice.total.toFixed(2)}</p>
+                      <p className="text-white font-semibold">${(invoice.total ?? 0).toFixed(2)}</p>
                     </div>
                   </div>
                 ))}
@@ -332,11 +332,11 @@ export default function ClientDetailsModal({ client, onClose, onSuccess, onEdit 
           <div className="p-4 bg-slate-800/50 rounded-lg">
             <div className="flex items-center gap-2 text-sm text-slate-400">
               <Calendar className="w-4 h-4" />
-              <span>Cliente desde {client.createdAt.toDate().toLocaleDateString('es-MX', {
+              <span>Cliente desde {client.createdAt?.toDate?.().toLocaleDateString('es-MX', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
-              })}</span>
+              }) || 'N/A'}</span>
             </div>
           </div>
         </div>

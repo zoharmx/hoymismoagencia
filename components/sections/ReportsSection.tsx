@@ -35,10 +35,10 @@ export default function ReportsSection({ clients, shipments, invoices }: Reports
 
     // Ingresos por mes
     const revenueByMonth = invoices
-      .filter(inv => inv.status === 'pagada' && inv.paidDate)
+      .filter(inv => inv.status === 'pagada' && inv.paidDate?.toDate)
       .reduce((acc, inv) => {
         const month = inv.paidDate!.toDate().toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })
-        acc[month] = (acc[month] || 0) + inv.total
+        acc[month] = (acc[month] || 0) + (inv.total || 0)
         return acc
       }, {} as Record<string, number>)
 
