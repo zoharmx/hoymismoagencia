@@ -167,29 +167,29 @@ function DashboardContent() {
 
   const stats = [
     {
-      label: 'Envíos Activos',
-      value: loadingStats ? '...' : dashboardStats?.activeShipments.toString() || '0',
+      label: 'Trámites Activos',
+      value: loadingStats ? '...' : String(dashboardStats?.activeShipments ?? 0),
       change: '+12%',
       icon: Package,
       color: 'blue',
     },
     {
       label: 'Ingresos del Mes',
-      value: loadingStats ? '...' : `$${dashboardStats?.monthlyRevenue.toLocaleString() || '0'}`,
+      value: loadingStats ? '...' : `$${(dashboardStats?.monthlyRevenue ?? 0).toLocaleString()}`,
       change: '+18%',
       icon: DollarSign,
       color: 'green',
     },
     {
       label: 'Clientes Activos',
-      value: loadingStats ? '...' : dashboardStats?.activeClients.toString() || '0',
+      value: loadingStats ? '...' : String(dashboardStats?.activeClients ?? 0),
       change: '+8%',
       icon: Users,
       color: 'purple',
     },
     {
       label: 'Pendientes',
-      value: loadingStats ? '...' : dashboardStats?.pendingShipments.toString() || '0',
+      value: loadingStats ? '...' : String(dashboardStats?.pendingShipments ?? 0),
       change: '-3%',
       icon: AlertCircle,
       color: 'orange',
