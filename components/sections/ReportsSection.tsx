@@ -64,23 +64,27 @@ export default function ReportsSection({ clients, shipments, invoices }: Reports
   }, [clients, shipments, invoices])
 
   const statusLabels: Record<string, string> = {
-    'pendiente': 'Pendiente',
-    'en-transito': 'En Tránsito',
-    'en-aduana': 'En Aduana',
-    'en-distribucion': 'En Distribución',
-    'entregado': 'Entregado',
-    'cancelado': 'Cancelado',
-    'devuelto': 'Devuelto'
+    'contacto-creado': 'Contacto Creado',
+    'documentacion-inicial': 'Documentación Inicial',
+    'vehiculo-validado': 'Vehículo Validado',
+    'anticipo-recibido': 'Anticipo Recibido',
+    'tramite-en-proceso': 'Trámite en Proceso',
+    'pedimento-generado': 'Pedimento Generado',
+    'liquidacion': 'Liquidación',
+    'tramite-finalizado': 'Trámite Finalizado',
+    'cancelado': 'Cancelado'
   }
 
   const statusColors: Record<string, string> = {
-    'pendiente': 'bg-yellow-500',
-    'en-transito': 'bg-blue-500',
-    'en-aduana': 'bg-orange-500',
-    'en-distribucion': 'bg-purple-500',
-    'entregado': 'bg-green-500',
-    'cancelado': 'bg-red-500',
-    'devuelto': 'bg-slate-500'
+    'contacto-creado': 'bg-slate-500',
+    'documentacion-inicial': 'bg-yellow-500',
+    'vehiculo-validado': 'bg-blue-500',
+    'anticipo-recibido': 'bg-green-500',
+    'tramite-en-proceso': 'bg-orange-500',
+    'pedimento-generado': 'bg-purple-500',
+    'liquidacion': 'bg-cyan-500',
+    'tramite-finalizado': 'bg-emerald-500',
+    'cancelado': 'bg-red-500'
   }
 
   return (
@@ -126,7 +130,7 @@ export default function ReportsSection({ clients, shipments, invoices }: Reports
           </div>
           <p className="text-sm text-slate-400 mb-1">Valor Promedio Trámite</p>
           <p className="text-2xl font-bold text-white">${(stats.avgShipmentValue ?? 0).toFixed(2)}</p>
-          <p className="text-xs text-slate-500 mt-2">{shipments.length} envíos totales</p>
+          <p className="text-xs text-slate-500 mt-2">{shipments.length} trámites totales</p>
         </div>
 
         <div className="card-gradient p-6">
@@ -143,11 +147,11 @@ export default function ReportsSection({ clients, shipments, invoices }: Reports
 
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Envíos por Estado */}
+        {/* Trámites por Estado */}
         <div className="card-gradient p-6">
           <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-primary-500" />
-            Envíos por Estado
+            Trámites por Estado
           </h3>
           <div className="space-y-4">
             {Object.entries(stats.shipmentsByStatus).map(([status, count]) => {

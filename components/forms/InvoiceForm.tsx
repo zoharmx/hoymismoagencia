@@ -290,7 +290,7 @@ export default function InvoiceForm({ onClose, onSuccess }: InvoiceFormProps) {
 
                     <div className="md:col-span-2">
                       <label className="block text-xs font-semibold text-slate-400 mb-1">
-                        Envío Relacionado (opcional)
+                        Trámite Relacionado (opcional)
                       </label>
                       <select
                         {...register(`items.${index}.shipmentId`)}
@@ -304,7 +304,7 @@ export default function InvoiceForm({ onClose, onSuccess }: InvoiceFormProps) {
                           )
                           .map((shipment) => (
                             <option key={shipment.id} value={shipment.id}>
-                              {shipment.shipmentId || shipment.folio} - $
+                              {shipment.folio || shipment.shipmentId} - {shipment.vehicleBrand} {shipment.vehicleModel} - $
                               {(shipment.totalCost ?? 0).toFixed(2)}
                             </option>
                           ))}
