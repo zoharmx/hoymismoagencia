@@ -1,0 +1,36 @@
+{
+  "name": "hoymismo-agencia-aduanal",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "import-hubspot": "npx ts-node scripts/import-hubspot-csv.ts"
+  },
+  "dependencies": {
+    "@mistralai/mistralai": "^1.11.0",
+    "ai": "^5.0.116",
+    "firebase": "^12.7.0",
+    "firebase-admin": "^12.0.0",
+    "framer-motion": "^11.2.10",
+    "lucide-react": "^0.395.0",
+    "next": "14.2.3",
+    "react": "^18.3.1",
+    "react-countup": "^6.5.3",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.51.5",
+    "react-intersection-observer": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

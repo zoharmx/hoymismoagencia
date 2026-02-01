@@ -1,0 +1,169 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===================================================
+    // FUNCIONES AUXILIARES
+    // ===================================================
+
+    // Verifica si el usuario está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Obtiene el documento del usuario actual
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Verifica el rol del usuario
+    function hasRole(role) {
+      return isAuthenticated() && getUserData().role == role;
+    }
+
+    // Verifica si es admin
+    function isAdmin() {
+      return hasRole('admin') || (isAuthenticated() && request.auth.token.admin == true);
+    }
+
+    // Verifica si es gestor
+    function isGestor() {
+      return hasRole('gestor') || isAdmin();
+    }
+
+    // Verifica si es viewer (solo lectura)
+    function isViewer() {
+      return hasRole('viewer') || isGestor() || isAdmin();
+    }
+
+    // Verifica si el usuario es el gestor asignado al recurso
+    function isAssignedGestor(gestorId) {
+      return isAuthenticated() && request.auth.uid == gestorId;
+    }
+
+    // ===================================================
+    // MODO DESARROLLO - Permitir todo (TEMPORAL)
+    // ===================================================
+    // Descomentar la siguiente línea para desarrollo rápido
+    // match /{document=**} { allow read, write: if true; }
+
+    // ===================================================
+    // COLECCIÓN: users (Usuarios del sistema)
+    // ===================================================
+    match /users/{userId} {
+      // Los usuarios pueden leer su propio perfil
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      // Solo admins pueden crear/modificar usuarios
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ===================================================
+    // COLECCIÓN: clients (Clientes)
+    // ===================================================
+    match /clients/{clientId} {
+      // Viewers pueden leer, gestores y admins pueden escribir
+      allow read: if isViewer();
+      allow create: if isGestor();
+      allow update: if isGestor();
+      allow delete: if isAdmin();
+    }
+
+    // ===================================================
+    // COLECCIÓN: vehicles (Vehículos)
+    // ===================================================
+    match /vehicles/{vehicleId} {
+      allow read: if isViewer();
+      allow create: if isGestor();
+      allow update: if isGestor();
+      allow delete: if isAdmin();
+    }
+
+    // ===================================================
+    // COLECCIÓN: import_processes (Trámites de Importación)
+    // ===================================================
+    match /import_processes/{processId} {
+      // Lectura: cualquier usuario autenticado con rol viewer o superior
+      allow read: if isViewer();
+
+      // Crear: solo gestores o admins
+      allow create: if isGestor();
+
+      // Actualizar: gestores pueden actualizar, pero solo admin puede cancelar
+      allow update: if isGestor() && (
+        // No se puede cambiar a 'cancelado' a menos que sea admin
+        request.resource.data.status != 'cancelado' || isAdmin()
+      );
+
+      // Eliminar: solo admins
+      allow delete: if isAdmin();
+    }
+
+    // ===================================================
+    // COLECCIÓN: payments (Pagos)
+    // ===================================================
+    match /payments/{paymentId} {
+      allow read: if isViewer();
+      allow create: if isGestor();
+      allow update: if isGestor();
+      allow delete: if isAdmin();
+    }
+
+    // ===================================================
+    // COLECCIÓN: invoices (Facturas)
+    // ===================================================
+    match /invoices/{invoiceId} {
+      allow read: if isViewer();
+      allow create, update: if isGestor();
+      allow delete: if isAdmin();
+    }
+
+    // ===================================================
+    // COLECCIÓN: crm_activities (Actividades CRM)
+    // ===================================================
+    match /crm_activities/{activityId} {
+      allow read: if isViewer();
+      allow create, update: if isGestor();
+      allow delete: if isAdmin();
+    }
+
+    // ===================================================
+    // COLECCIÓN: documents (Documentos subidos)
+    // ===================================================
+    match /documents/{documentId} {
+      allow read: if isViewer();
+      allow create: if isGestor();
+      allow update: if isGestor();
+      allow delete: if isAdmin();
+    }
+
+    // ===================================================
+    // COLECCIÓN: audit_logs (Logs de auditoría)
+    // ===================================================
+    match /audit_logs/{logId} {
+      // Solo admins pueden leer logs de auditoría
+      allow read: if isAdmin();
+      // Los logs se crean automáticamente, no directamente por usuarios
+      allow write: if false;
+    }
+
+    // ===================================================
+    // COLECCIÓN: settings (Configuraciones del sistema)
+    // ===================================================
+    match /settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ===================================================
+    // COLECCIÓN: shipments (Legacy - compatibilidad)
+    // ===================================================
+    match /shipments/{shipmentId} {
+      allow read: if isViewer();
+      allow create: if isGestor();
+      allow update: if isGestor();
+      allow delete: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastreo Inteligente | HoyMismo</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fuentes e Iconos -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Mapbox GL (Mapas Premium) -->
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js'></script>
+
+    <!-- QR Code Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <!-- Configuración Tailwind Personalizada -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        primary: {
+                            400: '#fbbf24', /* Amber 400 */
+                            500: '#f59e0b', /* Amber 500 */
+                            600: '#d97706',
+                        }
+                    },
+                    animation: {
+                        'spin-slow': 'spin 3s linear infinite',
+                        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: 1, boxShadow: '0 0 0 0px rgba(245, 158, 11, 0.7)' },
+                            '50%': { opacity: .5, boxShadow: '0 0 0 10px rgba(245, 158, 11, 0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Efectos globales y utilidades */
+        body {
+            background-color: #020617; /* slate-950 */
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(15, 23, 42, 0.5) 0px, transparent 50%);
+            min-height: 100vh;
+        }
+
+        /* Mapbox styles */
+        .mapboxgl-ctrl-attrib {
+            opacity: 0.5;
+            font-size: 10px;
+        }
+
+        .mapboxgl-canvas {
+            border-radius: 12px;
+        }
+        
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6); /* slate-900 con opacidad */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Timeline Styles */
+        .timeline-step.active .step-icon {
+            @apply ring-4 ring-primary-500/30 bg-primary-500 text-slate-950 scale-110;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+        }
+        .timeline-step.completed .step-icon {
+            @apply bg-emerald-500 text-white border-emerald-500;
+        }
+        .timeline-step.completed .step-line {
+            @apply bg-emerald-500;
+        }
+
+        /* Animated Route Line */
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* QR Code Modal */
+        .modal-overlay {
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-content {
+            animation: slideUp 0.3s ease;
+        }
+    </style>
+</head>
+<body class="text-slate-200 antialiased selection:bg-primary-500 selection:text-white flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+
+    <!-- Background Elements (Decorativos) -->
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] right-[-5%] w-96 h-96 bg-primary-500/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-[-10%] left-[-5%] w-72 h-72 bg-blue-600/10 rounded-full blur-3xl"></div>
+    </div>
+
+    <main class="w-full max-w-4xl glass-card rounded-2xl shadow-2xl p-6 sm:p-10 relative overflow-hidden transition-all duration-500">
+        
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center justify-center space-x-3 mb-4">
+                <img src="https://assets.zyrosite.com/A0x1PEQxkvIL51x3/logo-hoy-mismo-mk3zPbX2EwU5oNQm.png" alt="Logo HoyMismo" class="h-12 w-auto object-contain drop-shadow-lg">
+            </div>
+            <h1 class="text-3xl font-bold text-white tracking-tight mb-2">
+                Rastreo <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-primary-600">Inteligente</span>
+            </h1>
+            <p class="text-slate-400 text-sm">Monitorea tu envío en tiempo real</p>
+        </div>
+
+        <!-- Search Area -->
+        <div class="relative max-w-2xl mx-auto mb-12 group">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-primary-500 to-blue-600 rounded-lg blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
+            <div class="relative flex flex-col sm:flex-row gap-2 bg-slate-900 rounded-lg p-2 border border-slate-700/50">
+                <div class="flex-grow relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-barcode text-slate-500"></i>
+                    </div>
+                    <input type="text" id="guia-input" 
+                        class="w-full pl-11 pr-4 py-3 bg-transparent text-white placeholder-slate-500 focus:outline-none font-medium"
+                        placeholder="Ingresa tu número de guía (ej. HM-123456)">
+                </div>
+                <button id="submit-button" 
+                    class="bg-primary-500 hover:bg-primary-400 text-slate-900 font-bold py-3 px-8 rounded-md transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-primary-500/20">
+                    <i class="fa-solid fa-search"></i>
+                    <span>Rastrear</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Loader -->
+        <div id="loader" class="hidden py-12 text-center">
+            <div class="inline-block relative">
+                <div class="w-16 h-16 border-4 border-slate-700 border-t-primary-500 rounded-full animate-spin"></div>
+                <div class="mt-4 text-slate-400 font-medium animate-pulse">Buscando paquete...</div>
+            </div>
+        </div>
+
+        <!-- Mensajes de Error -->
+        <div id="message-container" class="mb-8 empty:hidden"></div>
+
+        <!-- Resultados -->
+        <div id="resultado-wrapper" class="hidden opacity-0 transition-opacity duration-700">
+            
+            <!-- Estatus Principal con ETA y Compartir -->
+            <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-6 mb-8 text-center shadow-lg">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-blue-500"></div>
+
+                <!-- Botón Compartir (esquina superior derecha) -->
+                <button onclick="shareTracking()"
+                    class="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-slate-800/80 hover:bg-slate-700 border border-slate-600 rounded-full text-slate-300 hover:text-primary-400 transition-all hover:scale-110">
+                    <i class="fa-solid fa-share-nodes text-sm"></i>
+                </button>
+
+                <h2 class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Estado Actual</h2>
+                <div id="status-text" class="text-3xl sm:text-4xl font-black text-white drop-shadow-sm mb-4">
+                    --
+                </div>
+
+                <!-- ETA Section -->
+                <div id="eta-section" class="hidden mt-4 mb-4">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full">
+                        <i class="fa-solid fa-clock text-blue-400"></i>
+                        <span class="text-sm font-medium text-blue-300">
+                            Entrega estimada: <span id="eta-text" class="font-bold text-blue-200">--</span>
+                        </span>
+                    </div>
+                    <div id="distance-text" class="text-xs text-slate-500 mt-2"></div>
+                </div>
+
+                <!-- Botón IA Gemini -->
+                <div id="gemini-section" class="flex flex-col items-center justify-center mt-4">
+                    <button id="gemini-btn" onclick="getSmartSummary()"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-primary-400 border border-primary-500/30 rounded-full text-sm font-medium transition-all hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Explicar con IA</span>
+                    </button>
+                    <div id="gemini-summary" class="hidden mt-4 w-full max-w-lg bg-slate-800/50 border border-slate-700 rounded-lg p-4 text-left text-sm text-slate-300"></div>
+                </div>
+            </div>
+
+            <!-- Timeline Gráfico -->
+            <div id="timeline-container" class="mb-10 relative px-2">
+                <!-- Barra de progreso fondo -->
+                <div class="absolute top-1/2 left-0 w-full h-1 bg-slate-800 -translate-y-1/2 z-0 rounded-full"></div>
+                <!-- Barra de progreso activa (se llena con JS) -->
+                <div id="timeline-fill" class="absolute top-1/2 left-0 h-1 bg-gradient-to-r from-emerald-500 to-primary-500 -translate-y-1/2 z-0 rounded-full transition-all duration-1000 w-0"></div>
+                
+                <div class="relative z-10 flex justify-between items-center w-full" id="timeline-steps-wrapper">
+                    <!-- Los pasos se generan dinámicamente o se manipulan con JS -->
+                    <!-- Ejemplo estático de estructura para referencia del JS -->
+                    <div class="timeline-step group relative flex flex-col items-center cursor-pointer" data-status="pendiente">
+                        <div class="step-icon w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800 border-4 border-slate-900 flex items-center justify-center text-slate-500 transition-all duration-300 z-10">
+                            <i class="fa-solid fa-box-open text-sm sm:text-base"></i>
+                        </div>
+                        <span class="absolute top-14 text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wide opacity-70 group-hover:opacity-100 transition-opacity whitespace-nowrap">Origen</span>
+                    </div>
+
+                    <div class="timeline-step group relative flex flex-col items-center cursor-pointer" data-status="en-transito">
+                        <div class="step-icon w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800 border-4 border-slate-900 flex items-center justify-center text-slate-500 transition-all duration-300 z-10">
+                            <i class="fa-solid fa-truck-fast text-sm sm:text-base"></i>
+                        </div>
+                        <span class="absolute top-14 text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wide opacity-70 group-hover:opacity-100 transition-opacity whitespace-nowrap">Tránsito</span>
+                    </div>
+
+                    <div class="timeline-step group relative flex flex-col items-center cursor-pointer" data-status="en-distribucion">
+                        <div class="step-icon w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800 border-4 border-slate-900 flex items-center justify-center text-slate-500 transition-all duration-300 z-10">
+                            <i class="fa-solid fa-warehouse text-sm sm:text-base"></i>
+                        </div>
+                        <span class="absolute top-14 text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wide opacity-70 group-hover:opacity-100 transition-opacity whitespace-nowrap">Centro Dist.</span>
+                    </div>
+
+                    <div class="timeline-step group relative flex flex-col items-center cursor-pointer" data-status="en-aduana">
+                        <div class="step-icon w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800 border-4 border-slate-900 flex items-center justify-center text-slate-500 transition-all duration-300 z-10">
+                            <i class="fa-solid fa-route text-sm sm:text-base"></i>
+                        </div>
+                        <span class="absolute top-14 text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wide opacity-70 group-hover:opacity-100 transition-opacity whitespace-nowrap">En Ruta</span>
+                    </div>
+
+                    <div class="timeline-step group relative flex flex-col items-center cursor-pointer" data-status="entregado">
+                        <div class="step-icon w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800 border-4 border-slate-900 flex items-center justify-center text-slate-500 transition-all duration-300 z-10">
+                            <i class="fa-solid fa-check text-sm sm:text-base"></i>
+                        </div>
+                        <span class="absolute top-14 text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wide opacity-70 group-hover:opacity-100 transition-opacity whitespace-nowrap">Entregado</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grids de Información -->
+            <div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-6" id="details-grid">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <!-- Historial de Eventos -->
+            <div id="history-container" class="mt-8 hidden">
+                <h3 class="flex items-center gap-2 text-lg font-semibold text-white mb-4 pb-2 border-b border-slate-800">
+                    <i class="fa-solid fa-clock-rotate-left text-primary-500"></i> Historial de Movimientos
+                </h3>
+                <div id="history-timeline" class="space-y-3">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Mapa -->
+            <div id="map-container" class="mt-8 hidden">
+                <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
+                    <h3 class="flex items-center gap-2 text-lg font-semibold text-white">
+                        <i class="fa-solid fa-map-location-dot text-primary-500"></i> Ruta de Envío
+                    </h3>
+                    <!-- Toggle Vista Satélite -->
+                    <div class="flex items-center gap-2 bg-slate-800 rounded-lg p-1 border border-slate-700">
+                        <button id="map-street-btn" onclick="setMapView('street')"
+                            class="px-3 py-1.5 rounded text-xs font-medium transition-all bg-primary-500 text-slate-900">
+                            <i class="fa-solid fa-map"></i> Mapa
+                        </button>
+                        <button id="map-satellite-btn" onclick="setMapView('satellite')"
+                            class="px-3 py-1.5 rounded text-xs font-medium transition-all text-slate-400 hover:text-white">
+                            <i class="fa-solid fa-satellite"></i> Satélite
+                        </button>
+                    </div>
+                </div>
+                <div id="map" class="w-full h-80 sm:h-96 rounded-xl overflow-hidden shadow-lg border border-slate-700 z-0"></div>
+            </div>
+            
+        </div>
+
+    </main>
+
+    <!-- Modal Compartir con QR -->
+    <div id="share-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay bg-black/70">
+        <div class="modal-content bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+            <button onclick="closeShareModal()"
+                class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-times text-xl"></i>
+            </button>
+
+            <div class="text-center">
+                <div class="w-16 h-16 mx-auto mb-4 bg-primary-500/10 rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-share-nodes text-2xl text-primary-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">Compartir Rastreo</h3>
+                <p class="text-slate-400 text-sm mb-6">Comparte el enlace o escanea el código QR</p>
+
+                <!-- QR Code -->
+                <div id="qrcode" class="flex justify-center mb-6 bg-white p-4 rounded-xl inline-block mx-auto"></div>
+
+                <!-- Link para copiar -->
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="share-link" readonly
+                        class="flex-1 px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-300 text-sm focus:outline-none focus:border-primary-500">
+                    <button onclick="copyLink()"
+                        class="px-4 py-3 bg-primary-500 hover:bg-primary-400 text-slate-900 rounded-lg font-medium transition-all">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+
+                <!-- Botones de redes sociales -->
+                <div class="flex gap-2 justify-center">
+                    <button onclick="shareWhatsApp()"
+                        class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                    </button>
+                    <button onclick="shareEmail()"
+                        class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-envelope"></i> Email
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-8 text-center text-slate-500 text-xs">
+        <p>&copy; 2024 HoyMismo Paquetería. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // ⚙️ CONFIGURACIÓN PARA HOSTINGER
+        // Apunta al dashboard en Vercel donde están las APIs
+        const DASHBOARD_URL = "https://hoymismodashboard.vercel.app"; // ← Cambia esto si tu URL de Vercel es diferente
+        const API_URL = `${DASHBOARD_URL}/api/track/`;
+        const AI_SUMMARY_URL = `${DASHBOARD_URL}/api/ai-summary`;
+
+        let map = null;
+        let currentPackageData = {};
+        let routeLine = null;
+        let originMarker = null;
+        let destinationMarker = null;
+
+        const propertyMap = {
+            guia: {
+                title: "Información del Envío",
+                icon: "fa-barcode",
+                fields: {
+                    'numero_de_guia': 'Número de Guía',
+                    'estatus_actual': 'Estado Actual',
+                    'fecha_de_recoleccion': 'Fecha de Recolección'
+                }
+            },
+            origen: {
+                title: "Origen",
+                icon: "fa-location-dot",
+                fields: {
+                    'origen_ciudad': 'Ciudad de Origen',
+                    'origen_direccion': 'Dirección de Origen'
+                }
+            },
+            destino: {
+                title: "Destino",
+                icon: "fa-map-pin",
+                fields: {
+                    'destino_ciudad': 'Ciudad de Destino',
+                    'direccion_de_entrega': 'Dirección Completa de Entrega'
+                }
+            },
+            remitente: {
+                title: "Remitente",
+                icon: "fa-user",
+                fields: {
+                    'firstname': 'Nombre',
+                    'phone': 'Teléfono'
+                }
+            },
+            destinatario: {
+                title: "Destinatario",
+                icon: "fa-user-tag",
+                fields: {
+                    'nombre_de_receptor': 'Nombre del Receptor',
+                    'receptor_telefono': 'Teléfono del Receptor'
+                }
+            },
+            paquete: {
+                title: "Detalles del Paquete",
+                icon: "fa-box",
+                fields: {
+                    'peso__kg_': 'Peso (kg)',
+                    'dimensiones_del_paquete': 'Dimensiones',
+                    'distancia_km': 'Distancia Total (km)',
+                    'fecha_estimada_entrega': 'Entrega Estimada',
+                    'precio_total_usd': 'Costo Total (USD)'
+                }
+            }
+        };
+
+        const domElements = {
+            guiaInput: document.getElementById('guia-input'),
+            submitButton: document.getElementById('submit-button'),
+            loader: document.getElementById('loader'),
+            messageContainer: document.getElementById('message-container'),
+            resultadoWrapper: document.getElementById('resultado-wrapper'),
+            statusText: document.getElementById('status-text'),
+            detailsGrid: document.getElementById('details-grid'),
+            mapContainer: document.getElementById('map-container'),
+            timelineFill: document.getElementById('timeline-fill'),
+            geminiSummary: document.getElementById('gemini-summary'),
+            geminiBtn: document.getElementById('gemini-btn')
+        };
+
+        domElements.submitButton.addEventListener('click', consultarEnvio);
+        domElements.guiaInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') consultarEnvio(); });
+
+        // Auto-cargar si hay parámetro de guía en la URL
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const guiaParam = urlParams.get('guia');
+            if (guiaParam) {
+                domElements.guiaInput.value = guiaParam;
+                consultarEnvio();
+            }
+        });
+
+        async function consultarEnvio() {
+            const guiaId = domElements.guiaInput.value.trim();
+            if (!guiaId) {
+                mostrarMensaje('Por favor, ingresa un número de guía.', 'error');
+                return;
+            }
+
+            resetUI();
+            domElements.loader.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${API_URL}${encodeURIComponent(guiaId)}`);
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.detail || `Error en la consulta.`);
+                if (!data.numero_de_guia) throw new Error(`No se encontró información para la guía: ${guiaId}`);
+                
+                currentPackageData = data;
+                renderizarResultados(data);
+                actualizarTimeline(data.estatus_actual);
+
+            } catch (err) {
+                mostrarMensaje(err.message, 'error');
+            } finally {
+                domElements.loader.classList.add('hidden');
+            }
+        }
+
+        function resetUI() {
+            domElements.resultadoWrapper.classList.remove('opacity-100');
+            domElements.resultadoWrapper.classList.add('hidden');
+            domElements.messageContainer.innerHTML = '';
+            domElements.detailsGrid.innerHTML = '';
+            domElements.geminiSummary.classList.add('hidden');
+            domElements.geminiSummary.innerHTML = '';
+            domElements.geminiBtn.style.display = 'inline-flex';
+            if (map) { map.remove(); map = null; }
+            domElements.mapContainer.classList.add('hidden');
+            currentPackageData = {};
+            
+            // Reset timeline
+            document.querySelectorAll('.timeline-step').forEach(step => {
+                step.classList.remove('active', 'completed');
+                step.querySelector('.step-icon').classList.remove('bg-emerald-500', 'text-white', 'border-emerald-500', 'ring-4', 'bg-primary-500', 'text-slate-950');
+                step.querySelector('.step-icon').classList.add('bg-slate-800', 'text-slate-500');
+                step.querySelector('span').classList.remove('text-primary-400', 'text-emerald-400', 'opacity-100');
+            });
+            domElements.timelineFill.style.width = '0%';
+        }
+
+        function mostrarMensaje(mensaje, tipo) {
+            resetUI();
+            const colorClass = tipo === 'error' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-blue-500/10 text-blue-400';
+            domElements.messageContainer.innerHTML = `
+                <div class="p-4 rounded-lg border ${colorClass} flex items-center gap-3 animate-pulse">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <p class="text-sm font-medium">${mensaje}</p>
+                </div>`;
+        }
+
+        function renderizarResultados(data) {
+            // 1. Status
+            domElements.statusText.innerText = data.estatus_actual || 'Desconocido';
+
+            // 2. ETA & Distance
+            calculateETA(data);
+
+            // 3. Preparar datos transformados para el grid
+            const transformedData = {
+                ...data,
+                // Extraer datos anidados
+                origen_ciudad: data.origen_detallado?.ciudad || '',
+                origen_direccion: data.origen_detallado?.direccion || '',
+                destino_ciudad: data.destino || data.destino_detallado?.ciudad || '',
+                receptor_telefono: data.destinatario?.telefono || '',
+                // Formatear fecha estimada
+                fecha_estimada_entrega: data.fecha_estimada_entrega
+                    ? new Date(data.fecha_estimada_entrega).toLocaleDateString('es-MX', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    })
+                    : null,
+                // Asegurar que remitente tenga estructura plana
+                firstname: data.remitente?.firstname || data.clientName || '',
+                phone: data.remitente?.phone || data.clientPhone || '',
+                nombre_de_receptor: data.destinatario?.nombre_de_receptor || data.recipient?.name || ''
+            };
+
+            // 3. Grid Details
+            let gridHTML = '';
+            for (const sectionKey in propertyMap) {
+                const section = propertyMap[sectionKey];
+                let fieldsHTML = '';
+
+                for (const fieldKey in section.fields) {
+                    if (transformedData[fieldKey]) {
+                        fieldsHTML += `
+                            <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 hover:border-slate-600 transition-colors">
+                                <span class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">${section.fields[fieldKey]}</span>
+                                <span class="block text-sm text-slate-200 font-medium break-words">${transformedData[fieldKey]}</span>
+                            </div>`;
+                    }
+                }
+
+                if (fieldsHTML) {
+                    gridHTML += `
+                        <div class="bg-slate-900/40 rounded-xl p-5 border border-slate-800 backdrop-blur-sm">
+                            <h3 class="flex items-center gap-2 text-lg font-semibold text-white mb-4 pb-2 border-b border-slate-800/80">
+                                <i class="fa-solid ${section.icon} text-primary-500"></i> ${section.title}
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                ${fieldsHTML}
+                            </div>
+                        </div>`;
+                }
+            }
+            domElements.detailsGrid.innerHTML = gridHTML;
+
+            // 4. History Timeline
+            if (data.historial && data.historial.length > 0) {
+                renderHistory(data.historial);
+            }
+
+            // Show first (important for map sizing)
+            domElements.resultadoWrapper.classList.remove('hidden');
+            // Small delay for fade in animation
+            setTimeout(() => {
+                domElements.resultadoWrapper.classList.remove('opacity-0');
+                domElements.resultadoWrapper.classList.add('opacity-100');
+            }, 50);
+
+            // 5. Map - Create after UI is visible
+            if (data.direccion_de_entrega || data.destino_detallado) {
+                domElements.mapContainer.classList.remove('hidden');
+                // Wait for UI to be fully visible before creating map
+                setTimeout(() => crearMapa(data), 800);
+            }
+        }
+
+        function actualizarTimeline(estatusActual) {
+            if (!estatusActual) return;
+            const steps = Array.from(document.querySelectorAll('.timeline-step'));
+            const statusMap = steps.map(s => s.getAttribute('data-status').toLowerCase());
+            
+            // Normalizar estatus
+            let currentStatusNorm = estatusActual.toLowerCase();
+            // Mapeo simple de incidencias/cancelaciones
+            if (currentStatusNorm.includes('incidencia') || currentStatusNorm.includes('cancelado')) {
+                // Manejo especial visual si quisieras, por ahora lo tratamos como fin de proceso o un paso específico
+                // Si el estatus de la API no coincide exactamente con los pasos, buscamos aproximaciones
+            }
+
+            let activeIndex = statusMap.findIndex(s => currentStatusNorm.includes(s) || s.includes(currentStatusNorm));
+            
+            // Si es "Entregado", activar todo
+            if (currentStatusNorm === 'entregado') activeIndex = steps.length - 1;
+
+            if (activeIndex === -1) activeIndex = 0; // Default al inicio si no encuentra match exacto
+
+            steps.forEach((step, index) => {
+                const icon = step.querySelector('.step-icon');
+                const label = step.querySelector('span');
+
+                if (index < activeIndex) {
+                    // Completado
+                    step.classList.add('completed');
+                    icon.classList.remove('bg-slate-800', 'text-slate-500');
+                    icon.classList.add('bg-emerald-500', 'text-white', 'border-emerald-500');
+                    label.classList.add('text-emerald-400', 'opacity-100');
+                } else if (index === activeIndex) {
+                    // Activo
+                    step.classList.add('active');
+                    icon.classList.remove('bg-slate-800', 'text-slate-500');
+                    icon.classList.add('bg-primary-500', 'text-slate-900', 'ring-4', 'ring-primary-500/30', 'scale-110');
+                    label.classList.add('text-primary-400', 'opacity-100', 'font-bold');
+                }
+            });
+
+            // Barra de progreso
+            const progress = (activeIndex / (steps.length - 1)) * 100;
+            domElements.timelineFill.style.width = `${progress}%`;
+        }
+
+        async function getSmartSummary() {
+            const status = currentPackageData.estatus_actual;
+            const summaryContainer = domElements.geminiSummary;
+            const btn = domElements.geminiBtn;
+
+            summaryContainer.classList.remove('hidden');
+            summaryContainer.innerHTML = '<div class="flex items-center gap-2"><i class="fa-solid fa-spinner fa-spin text-primary-500"></i> <span class="text-slate-400">Consultando a la IA...</span></div>';
+            btn.style.display = 'none';
+
+            try {
+                const response = await fetch(AI_SUMMARY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+
+                if (!response.ok) {
+                    console.warn('AI service not available:', response.status);
+                    throw new Error('AI service error');
+                }
+
+                const data = await response.json();
+
+                summaryContainer.innerHTML = `
+                    <div class="flex flex-col gap-1 animate-fadeIn">
+                        <strong class="text-primary-400 flex items-center gap-2 text-base">
+                            <i class="${data.icon || 'fa-solid fa-robot'}"></i> ${data.title}
+                        </strong>
+                        <p class="text-slate-300 leading-relaxed">${data.explanation}</p>
+                    </div>`;
+            } catch (error) {
+                console.error('AI Summary error:', error);
+                // Mostrar mensaje más amigable sin hacer que parezca un error crítico
+                summaryContainer.innerHTML = `
+                    <p class="text-slate-400 text-xs">
+                        <i class="fa-solid fa-info-circle mr-1"></i>
+                        El asistente de IA no está disponible en este momento. Tu paquete está <strong class="text-white">${status}</strong>.
+                    </p>`;
+                btn.style.display = 'inline-flex';
+            }
+        }
+
+        // Función para calcular y mostrar ETA
+        function calculateETA(data) {
+            const etaSection = document.getElementById('eta-section');
+            const etaText = document.getElementById('eta-text');
+            const distanceText = document.getElementById('distance-text');
+
+            if (data.fecha_estimada_entrega) {
+                etaText.textContent = new Date(data.fecha_estimada_entrega).toLocaleDateString('es-MX', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+                etaSection.classList.remove('hidden');
+            }
+
+            if (data.distancia_km) {
+                distanceText.textContent = `Distancia total: ${data.distancia_km} km`;
+            }
+        }
+
+        // Función para mostrar historial
+        function renderHistory(historial) {
+            const historyContainer = document.getElementById('history-container');
+            const historyTimeline = document.getElementById('history-timeline');
+
+            if (!historial || historial.length === 0) return;
+
+            let html = '';
+            historial.forEach((event, index) => {
+                const isFirst = index === 0;
+                const date = event.timestamp?.toDate ? event.timestamp.toDate() : new Date(event.timestamp);
+                const formattedDate = date.toLocaleDateString('es-MX', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+                const formattedTime = date.toLocaleTimeString('es-MX', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                html += `
+                    <div class="flex gap-4 items-start ${isFirst ? 'opacity-100' : 'opacity-75'}">
+                        <div class="flex flex-col items-center">
+                            <div class="w-3 h-3 rounded-full ${isFirst ? 'bg-primary-500 ring-4 ring-primary-500/30' : 'bg-slate-600'} flex-shrink-0"></div>
+                            ${index < historial.length - 1 ? '<div class="w-0.5 h-full bg-slate-700 mt-1"></div>' : ''}
+                        </div>
+                        <div class="flex-1 pb-6">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-sm font-semibold text-white">${event.status || event.descripcion || 'Actualización'}</span>
+                                ${isFirst ? '<span class="px-2 py-0.5 bg-primary-500/20 text-primary-400 text-[10px] font-bold rounded-full">RECIENTE</span>' : ''}
+                            </div>
+                            <div class="text-xs text-slate-500">${formattedDate} • ${formattedTime}</div>
+                            ${event.location ? `<div class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-location-dot"></i> ${event.location}</div>` : ''}
+                            ${event.notes ? `<div class="text-xs text-slate-300 mt-2 bg-slate-800/50 p-2 rounded border-l-2 border-primary-500/50">${event.notes}</div>` : ''}
+                        </div>
+                    </div>`;
+            });
+
+            historyTimeline.innerHTML = html;
+            historyContainer.classList.remove('hidden');
+        }
+
+        // Funciones para compartir
+        function shareTracking() {
+            const modal = document.getElementById('share-modal');
+            const qrcodeDiv = document.getElementById('qrcode');
+            const shareLink = document.getElementById('share-link');
+
+            const trackingUrl = `${window.location.origin}${window.location.pathname}?guia=${currentPackageData.numero_de_guia}`;
+            shareLink.value = trackingUrl;
+
+            // Limpiar QR anterior
+            qrcodeDiv.innerHTML = '';
+
+            // Generar QR code
+            new QRCode(qrcodeDiv, {
+                text: trackingUrl,
+                width: 200,
+                height: 200,
+                colorDark: '#0f172a',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeShareModal() {
+            document.getElementById('share-modal').classList.add('hidden');
+        }
+
+        function copyLink() {
+            const shareLink = document.getElementById('share-link');
+            shareLink.select();
+            document.execCommand('copy');
+
+            // Feedback visual
+            const btn = event.target.closest('button');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+            }, 2000);
+        }
+
+        function shareWhatsApp() {
+            const trackingUrl = document.getElementById('share-link').value;
+            const message = `Hola! Te comparto el rastreo de mi paquete HoyMismo: ${trackingUrl}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        function shareEmail() {
+            const trackingUrl = document.getElementById('share-link').value;
+            const subject = 'Rastreo de Paquete HoyMismo';
+            const body = `Hola,\n\nTe comparto el enlace para rastrear mi paquete:\n\n${trackingUrl}\n\nSaludos!`;
+            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+
+        // Mapbox configuration
+        const MAPBOX_TOKEN = 'pk.eyJ1Ijoiem9oYXJteCIsImEiOiJjbWUwdmViYXYwOWVyMnFwdXJiN2FsMXIwIn0.t6-3BDRKYPEb7pxCItECog';
+        let currentMapView = 'street';
+
+        // Coordenadas predefinidas para ciudades comunes (formato: [lng, lat])
+        const CITY_COORDINATES = {
+            // USA
+            'houston': [-95.3698, 29.7604],
+            'houston, tx': [-95.3698, 29.7604],
+            'houston, texas': [-95.3698, 29.7604],
+            'laredo': [-99.5075, 27.5306],
+            'laredo, tx': [-99.5075, 27.5306],
+            'laredo, texas': [-99.5075, 27.5306],
+            'mcallen': [-98.2300, 26.2034],
+            'mcallen, tx': [-98.2300, 26.2034],
+            'dallas': [-96.7970, 32.7767],
+            'dallas, tx': [-96.7970, 32.7767],
+            'san antonio': [-98.4936, 29.4241],
+            'san antonio, tx': [-98.4936, 29.4241],
+
+            // México
+            'monterrey': [-100.3161, 25.6866],
+            'monterrey, nl': [-100.3161, 25.6866],
+            'monterrey, nuevo leon': [-100.3161, 25.6866],
+            'monterrey, nuevo león': [-100.3161, 25.6866],
+            'apodaca': [-100.1875, 25.7804],
+            'apodaca, nl': [-100.1875, 25.7804],
+            'apodaca, nuevo leon': [-100.1875, 25.7804],
+            'apodaca, nuevo león': [-100.1875, 25.7804],
+            'guadalajara': [-103.3494, 20.6597],
+            'guadalajara, jalisco': [-103.3494, 20.6597],
+            'ciudad de mexico': [-99.1332, 19.4326],
+            'ciudad de méxico': [-99.1332, 19.4326],
+            'cdmx': [-99.1332, 19.4326],
+            'mexico city': [-99.1332, 19.4326],
+            'queretaro': [-100.3899, 20.5888],
+            'querétaro': [-100.3899, 20.5888],
+            'puebla': [-98.2063, 19.0414],
+            'tijuana': [-117.0382, 32.5149],
+            'reynosa': [-98.2774, 26.0922],
+            'reynosa, tamaulipas': [-98.2774, 26.0922],
+            'nuevo laredo': [-99.5167, 27.4769],
+            'nuevo laredo, tamaulipas': [-99.5167, 27.4769],
+            'matamoros': [-97.5042, 25.8796],
+            'matamoros, tamaulipas': [-97.5042, 25.8796],
+            'saltillo': [-100.9737, 25.4232],
+            'saltillo, coahuila': [-100.9737, 25.4232],
+            'torreon': [-103.4067, 25.5428],
+            'torreón': [-103.4067, 25.5428],
+            'san luis potosi': [-100.9855, 22.1565],
+            'san luis potosí': [-100.9855, 22.1565],
+            'aguascalientes': [-102.2916, 21.8853],
+            'leon': [-101.6860, 21.1250],
+            'león': [-101.6860, 21.1250],
+            'culiacan': [-107.3940, 24.8091],
+            'culiacán': [-107.3940, 24.8091],
+            'hermosillo': [-110.9559, 29.0729],
+            'chihuahua': [-106.0889, 28.6353],
+            'juarez': [-106.4245, 31.6904],
+            'ciudad juarez': [-106.4245, 31.6904],
+            'ciudad juárez': [-106.4245, 31.6904],
+            'merida': [-89.5926, 20.9674],
+            'mérida': [-89.5926, 20.9674],
+            'cancun': [-86.8515, 21.1619],
+            'cancún': [-86.8515, 21.1619]
+        };
+
+        // Función para obtener coordenadas predefinidas de una ciudad
+        function getCityCoordinates(cityName) {
+            if (!cityName) return null;
+
+            // Normalizar el nombre de la ciudad
+            const normalized = cityName.toLowerCase().trim();
+
+            // Buscar en el mapa de coordenadas
+            if (CITY_COORDINATES[normalized]) {
+                return CITY_COORDINATES[normalized];
+            }
+
+            // Intentar buscar solo el nombre de la ciudad sin el estado
+            const cityOnly = normalized.split(',')[0].trim();
+            if (CITY_COORDINATES[cityOnly]) {
+                return CITY_COORDINATES[cityOnly];
+            }
+
+            return null;
+        }
+
+        function setMapView(view) {
+            if (!map) return;
+
+            currentMapView = view;
+            const streetBtn = document.getElementById('map-street-btn');
+            const satelliteBtn = document.getElementById('map-satellite-btn');
+
+            if (view === 'street') {
+                map.setStyle('mapbox://styles/mapbox/dark-v11');
+                streetBtn.classList.add('bg-primary-500', 'text-slate-900');
+                streetBtn.classList.remove('text-slate-400');
+                satelliteBtn.classList.remove('bg-primary-500', 'text-slate-900');
+                satelliteBtn.classList.add('text-slate-400');
+            } else {
+                map.setStyle('mapbox://styles/mapbox/satellite-streets-v12');
+                satelliteBtn.classList.add('bg-primary-500', 'text-slate-900');
+                satelliteBtn.classList.remove('text-slate-400');
+                streetBtn.classList.remove('bg-primary-500', 'text-slate-900');
+                streetBtn.classList.add('text-slate-400');
+            }
+        }
+
+        async function crearMapa(data) {
+            if (map) {
+                map.remove();
+                map = null;
+            }
+
+            // Verificar que Mapbox GL esté cargado
+            if (typeof mapboxgl === 'undefined') {
+                console.error('Mapbox GL JS no está cargado');
+                domElements.mapContainer.classList.add('hidden');
+                return;
+            }
+
+            mapboxgl.accessToken = MAPBOX_TOKEN;
+
+            // Geocodificar origen y destino usando Mapbox Geocoding API
+            let originCoords = null;
+            let destCoords = null;
+
+            try {
+                // === DESTINO ===
+                // 1. Intentar usar coordenadas ya proporcionadas
+                if (data.destino_detallado?.coordenadas && Array.isArray(data.destino_detallado.coordenadas)) {
+                    destCoords = data.destino_detallado.coordenadas;
+                } else {
+                    // 2. Intentar coordenadas predefinidas por ciudad
+                    const destCity = data.destino_detallado?.ciudad || data.destino;
+                    destCoords = getCityCoordinates(destCity);
+
+                    // 3. Si no hay coordenadas predefinidas, geocodificar con contexto
+                    if (!destCoords) {
+                        const destinationAddress = data.destino_detallado?.direccion || data.direccion_de_entrega;
+                        if (destinationAddress) {
+                            // Agregar contexto "Mexico" a la búsqueda para mejorar precisión
+                            const searchQuery = destinationAddress.includes('Mexico') || destinationAddress.includes('México')
+                                ? destinationAddress
+                                : `${destinationAddress}, Mexico`;
+
+                            const destResponse = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${MAPBOX_TOKEN}&country=mx&limit=1`);
+                            const destData = await destResponse.json();
+
+                            if (destData.features && destData.features.length > 0) {
+                                destCoords = destData.features[0].center; // [lng, lat]
+                            }
+                        }
+                    }
+                }
+
+                // === ORIGEN ===
+                // 1. Intentar usar coordenadas ya proporcionadas
+                if (data.origen_detallado?.coordenadas && Array.isArray(data.origen_detallado.coordenadas)) {
+                    originCoords = data.origen_detallado.coordenadas;
+                } else {
+                    // 2. Intentar coordenadas predefinidas por ciudad
+                    const originCity = data.origen_detallado?.ciudad;
+                    originCoords = getCityCoordinates(originCity);
+
+                    // 3. Si no hay coordenadas predefinidas, geocodificar con contexto
+                    if (!originCoords && (data.origen_detallado?.direccion || data.origen_detallado?.ciudad)) {
+                        const originAddress = data.origen_detallado.ciudad || data.origen_detallado.direccion;
+
+                        // Determinar el país del origen (usualmente USA o México)
+                        const isUSA = originAddress.toLowerCase().includes('houston') ||
+                                     originAddress.toLowerCase().includes('texas') ||
+                                     originAddress.toLowerCase().includes('tx') ||
+                                     originAddress.toLowerCase().includes('laredo') ||
+                                     originAddress.toLowerCase().includes('dallas') ||
+                                     originAddress.toLowerCase().includes('mcallen');
+
+                        const searchQuery = isUSA
+                            ? `${originAddress}, USA`
+                            : `${originAddress}, Mexico`;
+
+                        const countryCode = isUSA ? 'us' : 'mx';
+
+                        const originResponse = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${MAPBOX_TOKEN}&country=${countryCode}&limit=1`);
+                        const originData = await originResponse.json();
+
+                        if (originData.features && originData.features.length > 0) {
+                            originCoords = originData.features[0].center; // [lng, lat]
+                        }
+                    }
+                }
+
+                // Si no hay coordenadas, ocultar mapa
+                if (!destCoords) {
+                    domElements.mapContainer.classList.add('hidden');
+                    return;
+                }
+
+                // Crear mapa Mapbox con estilo oscuro
+                map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/dark-v11',
+                    center: destCoords,
+                    zoom: 5,
+                    attributionControl: true
+                });
+
+                // Añadir controles de navegación
+                map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+
+                // Crear popup para marcadores
+                const createPopup = (title, address) => {
+                    return new mapboxgl.Popup({ offset: 25 })
+                        .setHTML(`
+                            <div style="padding: 8px; font-family: sans-serif;">
+                                <div style="font-weight: bold; color: #f59e0b; margin-bottom: 4px;">${title}</div>
+                                <div style="font-size: 12px; color: #333;">${address}</div>
+                            </div>
+                        `);
+                };
+
+                // Añadir marcador de origen
+                if (originCoords) {
+                    const originEl = document.createElement('div');
+                    originEl.innerHTML = `
+                        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                             width: 30px; height: 30px; border-radius: 50%;
+                             border: 3px solid #fff; box-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
+                             display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-location-dot" style="color: white; font-size: 14px;"></i>
+                        </div>`;
+
+                    new mapboxgl.Marker({ element: originEl })
+                        .setLngLat(originCoords)
+                        .setPopup(createPopup('Origen', data.origen_detallado?.direccion || data.origen_detallado?.ciudad))
+                        .addTo(map);
+                }
+
+                // Añadir marcador de destino (animado)
+                const destEl = document.createElement('div');
+                destEl.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                         width: 36px; height: 36px; border-radius: 50%;
+                         border: 3px solid #fff; box-shadow: 0 0 25px rgba(245, 158, 11, 1);
+                         display: flex; align-items: center; justify-content: center;
+                         animation: pulse 2s infinite;">
+                        <i class="fa-solid fa-flag-checkered" style="color: white; font-size: 16px;"></i>
+                    </div>`;
+
+                new mapboxgl.Marker({ element: destEl })
+                    .setLngLat(destCoords)
+                    .setPopup(createPopup('Destino', data.destino_detallado?.direccion || data.direccion_de_entrega))
+                    .addTo(map);
+
+                // Dibujar ruta animada si hay origen
+                if (originCoords && destCoords) {
+                    map.on('load', () => {
+                        // Añadir source y layer para la ruta
+                        map.addSource('route', {
+                            'type': 'geojson',
+                            'data': {
+                                'type': 'Feature',
+                                'properties': {},
+                                'geometry': {
+                                    'type': 'LineString',
+                                    'coordinates': [originCoords, destCoords]
+                                }
+                            }
+                        });
+
+                        // Línea base (fondo)
+                        map.addLayer({
+                            'id': 'route-bg',
+                            'type': 'line',
+                            'source': 'route',
+                            'layout': {
+                                'line-join': 'round',
+                                'line-cap': 'round'
+                            },
+                            'paint': {
+                                'line-color': '#334155',
+                                'line-width': 4,
+                                'line-opacity': 0.5
+                            }
+                        });
+
+                        // Línea principal (encima)
+                        map.addLayer({
+                            'id': 'route-main',
+                            'type': 'line',
+                            'source': 'route',
+                            'layout': {
+                                'line-join': 'round',
+                                'line-cap': 'round'
+                            },
+                            'paint': {
+                                'line-color': '#f59e0b',
+                                'line-width': 3,
+                                'line-opacity': 0.9
+                            }
+                        });
+                    });
+
+                    // Ajustar vista para mostrar toda la ruta
+                    const bounds = new mapboxgl.LngLatBounds();
+                    bounds.extend(originCoords);
+                    bounds.extend(destCoords);
+                    map.fitBounds(bounds, { padding: 80 });
+                } else if (destCoords) {
+                    // Solo destino
+                    map.setCenter(destCoords);
+                    map.setZoom(12);
+                }
+
+            } catch (error) {
+                console.error('Error creando mapa:', error);
+                domElements.mapContainer.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
