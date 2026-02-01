@@ -159,6 +159,9 @@ export interface Client {
   // Estadísticas
   totalProcesses: number
   totalPaid: number
+  // Alias para compatibilidad con importación CSV
+  totalShipments?: number // = totalProcesses
+  totalSpent?: number // = totalPaid
 
   // Metadatos
   createdAt: Timestamp

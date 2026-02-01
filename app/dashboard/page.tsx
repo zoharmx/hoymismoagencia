@@ -74,7 +74,7 @@ function DashboardContent() {
   // Filtrar menú según rol del usuario
   const allMenuItems = [
     { id: 'overview', label: 'Dashboard', icon: BarChart3, requiredRole: null },
-    { id: 'shipments', label: 'Envíos', icon: Package, requiredRole: null },
+    { id: 'shipments', label: 'Trámites', icon: Package, requiredRole: null },
     { id: 'clients', label: 'Clientes', icon: Users, requiredRole: null },
     { id: 'invoices', label: 'Facturación', icon: FileText, requiredRole: 'operator' },
     { id: 'reports', label: 'Reportes', icon: TrendingUp, requiredRole: 'manager' },
@@ -98,8 +98,55 @@ function DashboardContent() {
     )
   })
 
+  // Estatus para trámites de importación vehicular
   const getStatusBadge = (status: ShipmentStatus) => {
-    const badges: Record<ShipmentStatus, JSX.Element> = {
+    const badges: Record<string, JSX.Element> = {
+      'contacto-creado': (
+        <span className="px-3 py-1 bg-slate-500/20 text-slate-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <Clock className="w-3 h-3" /> Contacto Creado
+        </span>
+      ),
+      'documentacion-inicial': (
+        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <FileText className="w-3 h-3" /> Doc. Inicial
+        </span>
+      ),
+      'vehiculo-validado': (
+        <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <CheckCircle2 className="w-3 h-3" /> Vehículo Validado
+        </span>
+      ),
+      'anticipo-recibido': (
+        <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <DollarSign className="w-3 h-3" /> Anticipo Recibido
+        </span>
+      ),
+      'tramite-en-proceso': (
+        <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <Clock className="w-3 h-3" /> En Proceso
+        </span>
+      ),
+      'pedimento-generado': (
+        <span className="px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <FileText className="w-3 h-3" /> Pedimento Generado
+        </span>
+      ),
+      'liquidacion': (
+        <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <CreditCard className="w-3 h-3" /> Liquidación
+        </span>
+      ),
+      'tramite-finalizado': (
+        <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <CheckCircle2 className="w-3 h-3" /> Finalizado
+        </span>
+      ),
+      // Compatibilidad con estatus anteriores
+      pendiente: (
+        <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <AlertCircle className="w-3 h-3" /> Pendiente
+        </span>
+      ),
       'en-transito': (
         <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
           <Clock className="w-3 h-3" /> En Tránsito
@@ -110,33 +157,17 @@ function DashboardContent() {
           <CheckCircle2 className="w-3 h-3" /> Entregado
         </span>
       ),
-      pendiente: (
-        <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
-          <AlertCircle className="w-3 h-3" /> Pendiente
-        </span>
-      ),
-      'en-aduana': (
-        <span className="px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
-          <AlertCircle className="w-3 h-3" /> En Aduana
-        </span>
-      ),
-      'en-distribucion': (
-        <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
-          <Package className="w-3 h-3" /> En Distribución
-        </span>
-      ),
       cancelado: (
         <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
           <X className="w-3 h-3" /> Cancelado
         </span>
       ),
-      devuelto: (
-        <span className="px-3 py-1 bg-slate-500/20 text-slate-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
-          <AlertCircle className="w-3 h-3" /> Devuelto
-        </span>
-      ),
     }
-    return badges[status] || null
+    return badges[status] || (
+      <span className="px-3 py-1 bg-slate-500/20 text-slate-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+        <AlertCircle className="w-3 h-3" /> {status || 'Sin estatus'}
+      </span>
+    )
   }
 
   const getInvoiceStatusBadge = (status: InvoiceStatus) => {
@@ -234,9 +265,12 @@ function DashboardContent() {
     (shipment) => {
       const searchLower = searchTerm.toLowerCase()
       return (
-        (shipment.shipmentId || '').toLowerCase().includes(searchLower) ||
+        (shipment.folio || shipment.shipmentId || '').toLowerCase().includes(searchLower) ||
         (shipment.clientName || '').toLowerCase().includes(searchLower) ||
-        (shipment.trackingNumber || '').toLowerCase().includes(searchLower)
+        (shipment.vehicleVin || '').toLowerCase().includes(searchLower) ||
+        (shipment.vehicleBrand || '').toLowerCase().includes(searchLower) ||
+        (shipment.vehicleModel || '').toLowerCase().includes(searchLower) ||
+        (shipment.oficina || '').toLowerCase().includes(searchLower)
       )
     }
   )
@@ -379,11 +413,11 @@ function DashboardContent() {
 
                 {/* Recent Activity */}
                 <div className="grid lg:grid-cols-2 gap-6">
-                  {/* Recent Shipments */}
+                  {/* Trámites Recientes */}
                   <div className="card-gradient p-6">
                     <div className="flex items-center justify-between mb-6">
                       <h3 className="text-xl font-bold text-white">
-                        Envíos Recientes
+                        Trámites Recientes
                       </h3>
                       <button
                         onClick={() => setActiveSection('shipments')}
@@ -399,12 +433,12 @@ function DashboardContent() {
                     ) : shipments.length === 0 ? (
                       <div className="text-center py-8">
                         <Package className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                        <p className="text-slate-400 mb-4">No hay envíos todavía</p>
+                        <p className="text-slate-400 mb-4">No hay trámites todavía</p>
                         <button
                           onClick={() => setShowShipmentForm(true)}
                           className="btn-primary"
                         >
-                          Crear Primer Envío
+                          Crear Primer Trámite
                         </button>
                       </div>
                     ) : (
@@ -417,20 +451,19 @@ function DashboardContent() {
                             <div className="flex items-start justify-between mb-2">
                               <div>
                                 <p className="font-mono text-sm text-primary-400">
-                                  {shipment.shipmentId}
+                                  {shipment.folio || shipment.shipmentId}
                                 </p>
                                 <p className="text-white font-semibold">
                                   {shipment.clientName}
                                 </p>
                               </div>
                               <p className="font-semibold text-white">
-                                {/* CORRECCIÓN: Manejar totalCost undefined */}
                                 ${(shipment.totalCost || 0).toFixed(2)}
                               </p>
                             </div>
                             <div className="flex items-center text-xs text-slate-400 mb-2">
-                              <MapPin className="w-3 h-3 mr-1" />
-                              {shipment.origin?.city || shipment.vehicleBrand || 'N/A'}, {shipment.origin?.state || shipment.vehicleModel || ''} → {shipment.destination?.city || shipment.oficina || 'N/A'}, {shipment.destination?.state || ''}
+                              <Package className="w-3 h-3 mr-1" />
+                              {shipment.vehicleBrand || 'N/A'} {shipment.vehicleModel || ''} | VIN: {shipment.vehicleVin?.slice(-6) || 'N/A'}
                             </div>
                             <div className="flex items-center justify-between">
                               {getStatusBadge(shipment.status)}
@@ -457,7 +490,7 @@ function DashboardContent() {
                         <div className="flex items-center space-x-3">
                           <Plus className="w-5 h-5 text-primary-400" />
                           <span className="text-white font-semibold">
-                            Nuevo Envío
+                            Nuevo Trámite
                           </span>
                         </div>
                         <span className="text-primary-400">→</span>
@@ -504,19 +537,19 @@ function DashboardContent() {
               </>
             )}
 
-            {/* Shipments Section */}
+            {/* Shipments/Tramites Section */}
             {activeSection === 'shipments' && (
               <div className="card-gradient p-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                   <h2 className="text-2xl font-bold text-white">
-                    Gestión de Envíos
+                    Gestión de Trámites
                   </h2>
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input
                         type="text"
-                        placeholder="Buscar envío..."
+                        placeholder="Buscar trámite, VIN, folio..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-primary-500"
@@ -543,12 +576,12 @@ function DashboardContent() {
                   <div className="text-center py-12">
                     <Package className="w-16 h-16 text-slate-600 mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-white mb-2">
-                      {searchTerm ? 'No se encontraron envíos' : 'No hay envíos todavía'}
+                      {searchTerm ? 'No se encontraron trámites' : 'No hay trámites todavía'}
                     </h3>
                     <p className="text-slate-400 mb-6">
                       {searchTerm
                         ? 'Intenta con otro término de búsqueda'
-                        : 'Crea tu primer envío para comenzar'}
+                        : 'Crea tu primer trámite para comenzar'}
                     </p>
                     {!searchTerm && (
                       <button
@@ -556,7 +589,7 @@ function DashboardContent() {
                         className="btn-primary"
                       >
                         <Plus className="w-4 h-4 mr-2" />
-                        Crear Envío
+                        Crear Trámite
                       </button>
                     )}
                   </div>
@@ -566,13 +599,13 @@ function DashboardContent() {
                       <thead>
                         <tr className="border-b border-slate-700">
                           <th className="text-left py-3 px-4 text-sm font-semibold text-slate-400">
-                            ID
+                            Folio
                           </th>
                           <th className="text-left py-3 px-4 text-sm font-semibold text-slate-400">
                             Cliente
                           </th>
                           <th className="text-left py-3 px-4 text-sm font-semibold text-slate-400">
-                            Ruta
+                            Vehículo
                           </th>
                           <th className="text-left py-3 px-4 text-sm font-semibold text-slate-400">
                             Estado
@@ -593,11 +626,11 @@ function DashboardContent() {
                           >
                             <td className="py-4 px-4">
                               <p className="font-mono text-sm text-white">
-                                {shipment.shipmentId}
+                                {shipment.folio || shipment.shipmentId}
                               </p>
-                              {shipment.trackingNumber && (
+                              {shipment.vehicleVin && (
                                 <p className="text-xs text-slate-500">
-                                  {shipment.trackingNumber}
+                                  VIN: ...{shipment.vehicleVin.slice(-6)}
                                 </p>
                               )}
                             </td>
@@ -606,17 +639,16 @@ function DashboardContent() {
                             </td>
                             <td className="py-4 px-4">
                               <p className="text-sm text-white">
-                                {shipment.origin?.city || shipment.vehicleBrand || 'N/A'}, {shipment.origin?.state || shipment.vehicleModel || ''}
+                                {shipment.vehicleBrand || 'N/A'} {shipment.vehicleModel || ''}
                               </p>
                               <p className="text-xs text-slate-400">
-                                → {shipment.destination?.city || shipment.oficina || 'N/A'}, {shipment.destination?.state || ''}
+                                {shipment.oficina ? `Oficina: ${shipment.oficina}` : shipment.tipoPedimento || ''}
                               </p>
                             </td>
                             <td className="py-4 px-4">
                               {getStatusBadge(shipment.status)}
                             </td>
                             <td className="py-4 px-4 text-sm font-semibold text-white">
-                              {/* CORRECCIÓN: Manejar totalCost undefined */}
                               ${(shipment.totalCost || 0).toFixed(2)}
                             </td>
                             <td className="py-4 px-4">
@@ -651,7 +683,7 @@ function DashboardContent() {
                       <button
                         onClick={() => {
                           // Exportar clientes a CSV
-                          const headers = ['ID', 'Nombre', 'Email', 'Teléfono', 'Tipo', 'Empresa', 'RFC', 'Dirección', 'Ciudad', 'Estado', 'CP', 'País', 'Total Envíos', 'Total Gastado', 'Estado', 'Etiquetas', 'Fecha Registro']
+                          const headers = ['ID', 'Nombre', 'Email', 'Teléfono', 'Tipo', 'Empresa', 'RFC', 'Dirección', 'Ciudad', 'Estado', 'CP', 'País', 'Total Trámites', 'Total Gastado', 'Estado', 'Etiquetas', 'Fecha Registro']
                           const rows = filteredClients.map(client => [
                             client.clientId,
                             client.name,
@@ -825,7 +857,7 @@ function DashboardContent() {
                             <div className="flex items-center gap-6 mt-3">
                               <div>
                                 <p className="text-xs text-slate-500">
-                                  Total Envíos
+                                  Total Trámites
                                 </p>
                                 <p className="text-white font-semibold">
                                   {client.totalShipments}
