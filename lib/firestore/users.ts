@@ -3,7 +3,7 @@ import {
   doc,
   getDoc,
   getDocs,
-  setDoc, // Cambiado de addDoc a setDoc
+  setDoc, // <--- CAMBIO IMPORTANTE: Usamos setDoc en lugar de addDoc
   updateDoc,
   deleteDoc,
   query,
@@ -29,14 +29,14 @@ function removeUndefined<T extends Record<string, any>>(obj: T): Partial<T> {
   return cleaned
 }
 
-// Crear nuevo usuario (CORREGIDO: Usa setDoc con el UID como ID)
+// Crear nuevo usuario (CORREGIDO)
 export async function createUser(
   userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<User> {
   try {
     const now = Timestamp.now()
-
-    // Usamos el UID proporcionado como el ID del documento
+    
+    // Usamos el UID de Auth como ID del documento
     const userId = userData.uid; 
 
     const newUser: Omit<User, 'id'> = {
@@ -47,7 +47,7 @@ export async function createUser(
 
     const cleanedUser = removeUndefined(newUser)
     
-    // Usamos setDoc para forzar que el ID del documento sea el UID
+    // CORRECCIÓN: Usamos setDoc para forzar el ID correcto
     const docRef = doc(db, COLLECTION_NAME, userId);
     await setDoc(docRef, cleanedUser)
 
@@ -81,11 +81,10 @@ export async function getUser(id: string): Promise<User | null> {
   }
 }
 
-// Obtener usuario por UID de Firebase Auth (OPTIMIZADO)
-// Ahora que el ID del documento ES el UID, no necesitamos hacer una query.
+// Obtener usuario por UID (OPTIMIZADO)
 export async function getUserByUid(uid: string): Promise<User | null> {
   try {
-    // Lectura directa: mucho más rápida y segura para las reglas actuales
+    // Ahora hacemos lectura directa por ID
     return await getUser(uid);
   } catch (error) {
     console.error('Error getting user by UID:', error)
@@ -93,7 +92,8 @@ export async function getUserByUid(uid: string): Promise<User | null> {
   }
 }
 
-// Obtener todos los usuarios
+// --- Resto de funciones igual que antes (getUsers, updateUser, etc.) ---
+// Puedes mantener el resto del archivo original a partir de aquí
 export async function getUsers(
   filters?: {
     role?: UserRole
@@ -136,7 +136,6 @@ export async function getUsers(
   }
 }
 
-// Actualizar usuario
 export async function updateUser(
   id: string,
   updates: Partial<Omit<User, 'id' | 'uid' | 'createdAt'>>
@@ -155,7 +154,6 @@ export async function updateUser(
   }
 }
 
-// Desactivar usuario (soft delete)
 export async function deactivateUser(id: string): Promise<void> {
   try {
     const docRef = doc(db, COLLECTION_NAME, id)
@@ -169,7 +167,6 @@ export async function deactivateUser(id: string): Promise<void> {
   }
 }
 
-// Eliminar usuario permanentemente
 export async function deleteUser(id: string): Promise<void> {
   try {
     const docRef = doc(db, COLLECTION_NAME, id)
@@ -180,7 +177,6 @@ export async function deleteUser(id: string): Promise<void> {
   }
 }
 
-// Actualizar último login
 export async function updateLastLogin(id: string): Promise<void> {
   try {
     const docRef = doc(db, COLLECTION_NAME, id)
@@ -194,7 +190,6 @@ export async function updateLastLogin(id: string): Promise<void> {
   }
 }
 
-// Buscar usuarios por nombre o email
 export async function searchUsers(searchTerm: string): Promise<User[]> {
   try {
     const users = await getUsers({}, 100)
@@ -212,7 +207,6 @@ export async function searchUsers(searchTerm: string): Promise<User[]> {
   }
 }
 
-// Obtener estadísticas de usuarios
 export async function getUserStats() {
   try {
     const allUsers = await getUsers({}, 1000)

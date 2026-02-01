@@ -6,6 +6,8 @@ bower_components/
 .env
 .env.local
 .env.production
+.env.development
+.env.test
 
 # Builds
 dist/
@@ -17,6 +19,7 @@ out/
 .firebase/
 firebase-debug.log*
 .firebaserc
+.dataconnect
 
 # Vercel
 .vercel/
@@ -31,19 +34,32 @@ yarn-error.log*
 coverage/
 .nyc_output/
 .eslintcache
-.dataconnect
 
-# OS / Runtime
+# OS / Runtime / Editors
 pids
 *.pid
 *.seed
 *.pid.lock
 .node_repl_history
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
 
-# Firebase Admin SDK
+# --- SEGURIDAD CRÍTICA ---
+
+# 1. Firebase Admin SDK (Bloquea cualquier JSON que parezca una credencial)
 *-firebase-adminsdk-*.json
+service-account.json
+credentials.json
 
+# 2. Datos de Clientes (IMPORTANTE: Bloquear el CSV de HubSpot)
+*.csv
+*.xlsx
+*.xls
 
-# Archivos de contexto (documentación interna / sensible)
+# 3. Archivos de contexto y documentación sensible
 hoymismoagencia/contexto.txt
 hoymismoagencia/contexto 2.txt
+DEPLOY_INSTRUCCIONES.md
+AI_ASSISTANT_GUIDE.md
