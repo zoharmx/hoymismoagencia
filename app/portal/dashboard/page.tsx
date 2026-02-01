@@ -86,11 +86,11 @@ export default function PortalDashboard() {
     )
   }
 
-  const activeShipments = shipments.filter(s => s.status !== 'entregado' && s.status !== 'cancelado')
+  const activeShipments = shipments.filter(s => s.status !== 'tramite-finalizado' && s.status !== 'cancelado')
   const pendingInvoices = invoices.filter(i => i.status === 'pendiente')
   const totalPaid = invoices.filter(i => i.status === 'pagada').reduce((sum, inv) => sum + inv.total, 0)
   const deliveryRate = shipments.length > 0
-    ? Math.round((shipments.filter(s => s.status === 'entregado').length / shipments.length) * 100)
+    ? Math.round((shipments.filter(s => s.status === 'tramite-finalizado').length / shipments.length) * 100)
     : 0
 
   const stats = [
@@ -101,29 +101,64 @@ export default function PortalDashboard() {
   ]
 
   const getStatusBadge = (status: string) => {
-    const badges = {
-      'en-transito': (
-        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-semibold flex items-center gap-1">
-          <Clock className="w-3 h-3" /> En Tránsito
+    const badges: Record<string, JSX.Element> = {
+      'contacto-creado': (
+        <span className="px-3 py-1 bg-slate-500/20 text-slate-400 rounded-full text-xs font-semibold flex items-center gap-1">
+          <AlertCircle className="w-3 h-3" /> Contacto Creado
         </span>
       ),
-      entregado: (
-        <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold flex items-center gap-1">
-          <CheckCircle2 className="w-3 h-3" /> Entregado
-        </span>
-      ),
-      pendiente: (
+      'documentacion-inicial': (
         <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-semibold flex items-center gap-1">
-          <AlertCircle className="w-3 h-3" /> Pendiente
+          <FileText className="w-3 h-3" /> Documentación Inicial
         </span>
       ),
-      pagada: (
+      'vehiculo-validado': (
+        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-semibold flex items-center gap-1">
+          <CheckCircle2 className="w-3 h-3" /> Vehículo Validado
+        </span>
+      ),
+      'anticipo-recibido': (
+        <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold flex items-center gap-1">
+          <CheckCircle2 className="w-3 h-3" /> Anticipo Recibido
+        </span>
+      ),
+      'tramite-en-proceso': (
+        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-semibold flex items-center gap-1">
+          <Clock className="w-3 h-3" /> Trámite en Proceso
+        </span>
+      ),
+      'pedimento-generado': (
+        <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-semibold flex items-center gap-1">
+          <FileText className="w-3 h-3" /> Pedimento Generado
+        </span>
+      ),
+      'liquidacion': (
+        <span className="px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-semibold flex items-center gap-1">
+          <AlertCircle className="w-3 h-3" /> Liquidación
+        </span>
+      ),
+      'tramite-finalizado': (
+        <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold flex items-center gap-1">
+          <CheckCircle2 className="w-3 h-3" /> Trámite Finalizado
+        </span>
+      ),
+      'cancelado': (
+        <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-semibold flex items-center gap-1">
+          <AlertCircle className="w-3 h-3" /> Cancelado
+        </span>
+      ),
+      'pagada': (
         <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold">
           Pagada
         </span>
       ),
+      'pendiente': (
+        <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-semibold flex items-center gap-1">
+          <AlertCircle className="w-3 h-3" /> Pendiente
+        </span>
+      ),
     }
-    return badges[status as keyof typeof badges]
+    return badges[status] || null
   }
 
   const menuItems = [
@@ -287,31 +322,31 @@ export default function PortalDashboard() {
                             >
                               <td className="py-4 px-4">
                                 <p className="font-mono text-sm text-white">
-                                  {shipment.shipmentId}
+                                  {shipment.folio}
                                 </p>
-                                {shipment.trackingNumber && (
+                                {shipment.vehicleVin && (
                                   <p className="text-xs text-slate-500">
-                                    {shipment.trackingNumber}
+                                    VIN: {shipment.vehicleVin}
                                   </p>
                                 )}
                               </td>
                               <td className="py-4 px-4">
                                 <p className="text-sm text-white">
-                                  {shipment.origin.city}, {shipment.origin.state}
+                                  {shipment.vehicleBrand} {shipment.vehicleModel}
                                 </p>
                                 <p className="text-xs text-slate-400">
-                                  → {shipment.destination.city}, {shipment.destination.state}
+                                  {shipment.oficina} • {shipment.tipoPedimento}
                                 </p>
                               </td>
                               <td className="py-4 px-4">
                                 {getStatusBadge(shipment.status)}
                               </td>
                               <td className="py-4 px-4 text-sm text-slate-300">
-                                {shipment.weight} kg
+                                ${shipment.totalCost?.toFixed(2) || '0.00'}
                               </td>
                               <td className="py-4 px-4 text-sm text-slate-300">
-                                {shipment.estimatedDelivery
-                                  ? shipment.estimatedDelivery.toDate().toLocaleDateString()
+                                {shipment.fechaInicio
+                                  ? shipment.fechaInicio.toDate().toLocaleDateString()
                                   : 'Por confirmar'}
                               </td>
                               <td className="py-4 px-4">

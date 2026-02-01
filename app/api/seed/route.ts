@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server'
 import { seedDatabase } from '@/lib/firestore/seed'
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    // Solo permitir en desarrollo
-    if (process.env.NODE_ENV !== 'development') {
+    // Verificar secret key para permitir seed en producción
+    const { searchParams } = new URL(request.url)
+    const secretKey = searchParams.get('key')
+    const isProduction = process.env.NODE_ENV === 'production'
+
+    // En producción, requerir clave secreta
+    if (isProduction && secretKey !== 'hoymismo-seed-2025') {
       return NextResponse.json(
-        { error: 'Seed solo disponible en modo desarrollo' },
+        { error: 'Clave de autorización requerida' },
         { status: 403 }
       )
     }
@@ -32,6 +37,7 @@ export async function POST() {
 export async function GET() {
   return NextResponse.json({
     message: 'Usa POST para ejecutar el seed',
+    example: 'curl -X POST /api/seed?key=hoymismo-seed-2025',
     development: process.env.NODE_ENV === 'development',
   })
 }

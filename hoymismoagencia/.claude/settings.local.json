@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc:*)",
+      "Bash(npm view:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm run import-hubspot:*)",
+      "Bash(npm run build:*)"
+    ]
+  }
+}

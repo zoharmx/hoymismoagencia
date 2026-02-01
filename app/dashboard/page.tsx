@@ -46,7 +46,10 @@ import InvoiceDetailsModal from '@/components/modals/InvoiceDetailsModal'
 import AIAssistant from '@/components/AIAssistant'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
-import type { ShipmentStatus, InvoiceStatus, Client, Shipment, Invoice } from '@/types/crm'
+import type { ImportProcessStatus, InvoiceStatus, Client, ImportProcess, Invoice } from '@/types/crm'
+
+// Alias temporal para compatibilidad
+type Shipment = ImportProcess
 
 function DashboardContent() {
   const { user, signOut } = useAuth()
@@ -98,41 +101,51 @@ function DashboardContent() {
     )
   })
 
-  const getStatusBadge = (status: ShipmentStatus) => {
-    const badges: Record<ShipmentStatus, JSX.Element> = {
-      'en-transito': (
-        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
-          <Clock className="w-3 h-3" /> En Tránsito
+  const getStatusBadge = (status: ImportProcessStatus) => {
+    const badges: Record<ImportProcessStatus, JSX.Element> = {
+      'contacto-creado': (
+        <span className="px-3 py-1 bg-slate-500/20 text-slate-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <AlertCircle className="w-3 h-3" /> Contacto Creado
         </span>
       ),
-      entregado: (
-        <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
-          <CheckCircle2 className="w-3 h-3" /> Entregado
-        </span>
-      ),
-      pendiente: (
+      'documentacion-inicial': (
         <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
-          <AlertCircle className="w-3 h-3" /> Pendiente
+          <FileText className="w-3 h-3" /> Documentación Inicial
         </span>
       ),
-      'en-aduana': (
-        <span className="px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
-          <AlertCircle className="w-3 h-3" /> En Aduana
+      'vehiculo-validado': (
+        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <CheckCircle2 className="w-3 h-3" /> Vehículo Validado
         </span>
       ),
-      'en-distribucion': (
+      'anticipo-recibido': (
+        <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <DollarSign className="w-3 h-3" /> Anticipo Recibido
+        </span>
+      ),
+      'tramite-en-proceso': (
+        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <Clock className="w-3 h-3" /> Trámite en Proceso
+        </span>
+      ),
+      'pedimento-generado': (
         <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
-          <Package className="w-3 h-3" /> En Distribución
+          <FileText className="w-3 h-3" /> Pedimento Generado
         </span>
       ),
-      cancelado: (
+      'liquidacion': (
+        <span className="px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <DollarSign className="w-3 h-3" /> Liquidación
+        </span>
+      ),
+      'tramite-finalizado': (
+        <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
+          <CheckCircle2 className="w-3 h-3" /> Trámite Finalizado
+        </span>
+      ),
+      'cancelado': (
         <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
           <X className="w-3 h-3" /> Cancelado
-        </span>
-      ),
-      devuelto: (
-        <span className="px-3 py-1 bg-slate-500/20 text-slate-400 rounded-full text-xs font-semibold flex items-center gap-1 w-fit">
-          <AlertCircle className="w-3 h-3" /> Devuelto
         </span>
       ),
     }
@@ -167,29 +180,29 @@ function DashboardContent() {
 
   const stats = [
     {
-      label: 'Envíos Activos',
-      value: loadingStats ? '...' : dashboardStats?.activeShipments.toString() || '0',
+      label: 'Trámites Activos',
+      value: loadingStats ? '...' : dashboardStats?.activeProcesses?.toString() || '0',
       change: '+12%',
       icon: Package,
       color: 'blue',
     },
     {
       label: 'Ingresos del Mes',
-      value: loadingStats ? '...' : `$${dashboardStats?.monthlyRevenue.toLocaleString() || '0'}`,
+      value: loadingStats ? '...' : `$${dashboardStats?.monthlyRevenue?.toLocaleString() || '0'}`,
       change: '+18%',
       icon: DollarSign,
       color: 'green',
     },
     {
       label: 'Clientes Activos',
-      value: loadingStats ? '...' : dashboardStats?.activeClients.toString() || '0',
+      value: loadingStats ? '...' : dashboardStats?.activeClients?.toString() || '0',
       change: '+8%',
       icon: Users,
       color: 'purple',
     },
     {
       label: 'Pendientes',
-      value: loadingStats ? '...' : dashboardStats?.pendingShipments.toString() || '0',
+      value: loadingStats ? '...' : dashboardStats?.pendingProcesses?.toString() || '0',
       change: '-3%',
       icon: AlertCircle,
       color: 'orange',
@@ -223,7 +236,7 @@ function DashboardContent() {
         case 'date':
           return b.createdAt.toMillis() - a.createdAt.toMillis()
         case 'spending':
-          return (b.totalSpent || 0) - (a.totalSpent || 0)
+          return (b.totalPaid || 0) - (a.totalPaid || 0)
         default:
           return 0
       }
@@ -231,9 +244,9 @@ function DashboardContent() {
 
   const filteredShipments = shipments.filter(
     (shipment) =>
-      shipment.shipmentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      shipment.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      shipment.trackingNumber?.toLowerCase().includes(searchTerm.toLowerCase())
+      shipment.folio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shipment.clientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shipment.vehicleVin?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const filteredInvoices = invoices.filter(
@@ -408,7 +421,7 @@ function DashboardContent() {
                             <div className="flex items-start justify-between mb-2">
                               <div>
                                 <p className="font-mono text-sm text-primary-400">
-                                  {shipment.shipmentId}
+                                  {shipment.folio}
                                 </p>
                                 <p className="text-white font-semibold">
                                   {shipment.clientName}
@@ -419,8 +432,8 @@ function DashboardContent() {
                               </p>
                             </div>
                             <div className="flex items-center text-xs text-slate-400 mb-2">
-                              <MapPin className="w-3 h-3 mr-1" />
-                              {shipment.origin.city}, {shipment.origin.state} → {shipment.destination.city}, {shipment.destination.state}
+                              <Package className="w-3 h-3 mr-1" />
+                              {shipment.vehicleBrand} {shipment.vehicleModel} • {shipment.oficina}
                             </div>
                             <div className="flex items-center justify-between">
                               {getStatusBadge(shipment.status)}
@@ -583,11 +596,11 @@ function DashboardContent() {
                           >
                             <td className="py-4 px-4">
                               <p className="font-mono text-sm text-white">
-                                {shipment.shipmentId}
+                                {shipment.folio}
                               </p>
-                              {shipment.trackingNumber && (
+                              {shipment.vehicleVin && (
                                 <p className="text-xs text-slate-500">
-                                  {shipment.trackingNumber}
+                                  VIN: {shipment.vehicleVin}
                                 </p>
                               )}
                             </td>
@@ -596,10 +609,10 @@ function DashboardContent() {
                             </td>
                             <td className="py-4 px-4">
                               <p className="text-sm text-white">
-                                {shipment.origin.city}, {shipment.origin.state}
+                                {shipment.vehicleBrand} {shipment.vehicleModel}
                               </p>
                               <p className="text-xs text-slate-400">
-                                → {shipment.destination.city}, {shipment.destination.state}
+                                {shipment.oficina} • {shipment.tipoPedimento}
                               </p>
                             </td>
                             <td className="py-4 px-4">
@@ -654,8 +667,8 @@ function DashboardContent() {
                             client.address.state,
                             client.address.zipCode,
                             client.address.country,
-                            client.totalShipments || 0,
-                            (client.totalSpent || 0).toFixed(2),
+                            client.totalProcesses || 0,
+                            (client.totalPaid || 0).toFixed(2),
                             client.isActive ? 'Activo' : 'Inactivo',
                             client.tags?.join('; ') || '',
                             client.createdAt.toDate().toLocaleDateString()
@@ -817,7 +830,7 @@ function DashboardContent() {
                                   Total Envíos
                                 </p>
                                 <p className="text-white font-semibold">
-                                  {client.totalShipments}
+                                  {client.totalProcesses}
                                 </p>
                               </div>
                               <div>
@@ -825,16 +838,16 @@ function DashboardContent() {
                                   Total Gastado
                                 </p>
                                 <p className="text-white font-semibold">
-                                  ${client.totalSpent.toFixed(2)}
+                                  ${client.totalPaid.toFixed(2)}
                                 </p>
                               </div>
-                              {client.lastShipmentDate && (
+                              {client.lastProcessDate && (
                                 <div>
                                   <p className="text-xs text-slate-500">
                                     Último Envío
                                   </p>
                                   <p className="text-white font-semibold">
-                                    {client.lastShipmentDate.toDate().toLocaleDateString()}
+                                    {client.lastProcessDate.toDate().toLocaleDateString()}
                                   </p>
                                 </div>
                               )}

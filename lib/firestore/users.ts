@@ -3,7 +3,7 @@ import {
   doc,
   getDoc,
   getDocs,
-  addDoc,
+  setDoc, // Cambiado de addDoc a setDoc
   updateDoc,
   deleteDoc,
   query,
@@ -29,12 +29,15 @@ function removeUndefined<T extends Record<string, any>>(obj: T): Partial<T> {
   return cleaned
 }
 
-// Crear nuevo usuario
+// Crear nuevo usuario (CORREGIDO: Usa setDoc con el UID como ID)
 export async function createUser(
   userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<User> {
   try {
     const now = Timestamp.now()
+
+    // Usamos el UID proporcionado como el ID del documento
+    const userId = userData.uid; 
 
     const newUser: Omit<User, 'id'> = {
       ...userData,
@@ -43,10 +46,13 @@ export async function createUser(
     }
 
     const cleanedUser = removeUndefined(newUser)
-    const docRef = await addDoc(collection(db, COLLECTION_NAME), cleanedUser)
+    
+    // Usamos setDoc para forzar que el ID del documento sea el UID
+    const docRef = doc(db, COLLECTION_NAME, userId);
+    await setDoc(docRef, cleanedUser)
 
     return {
-      id: docRef.id,
+      id: userId,
       ...newUser,
     }
   } catch (error) {
@@ -75,21 +81,12 @@ export async function getUser(id: string): Promise<User | null> {
   }
 }
 
-// Obtener usuario por UID de Firebase Auth
+// Obtener usuario por UID de Firebase Auth (OPTIMIZADO)
+// Ahora que el ID del documento ES el UID, no necesitamos hacer una query.
 export async function getUserByUid(uid: string): Promise<User | null> {
   try {
-    const q = query(collection(db, COLLECTION_NAME), where('uid', '==', uid), limit(1))
-    const querySnapshot = await getDocs(q)
-
-    if (!querySnapshot.empty) {
-      const doc = querySnapshot.docs[0]
-      return {
-        id: doc.id,
-        ...doc.data(),
-      } as User
-    }
-
-    return null
+    // Lectura directa: mucho más rápida y segura para las reglas actuales
+    return await getUser(uid);
   } catch (error) {
     console.error('Error getting user by UID:', error)
     throw error

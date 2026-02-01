@@ -37,10 +37,8 @@ service cloud.firestore {
       return hasRole('viewer') || isGestor() || isAdmin();
     }
 
-    // Verifica si el usuario es el gestor asignado al recurso
-    function isAssignedGestor(gestorId) {
-      return isAuthenticated() && request.auth.uid == gestorId;
-    }
+    // Nota: isAssignedGestor se puede usar en el futuro para restringir acceso
+    // por gestor asignado. Por ahora se usa isGestor() para simplificar.
 
     // ===================================================
     // MODO DESARROLLO - Permitir todo (TEMPORAL)
