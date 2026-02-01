@@ -5,7 +5,11 @@
       "Bash(npm view:*)",
       "Bash(npm audit:*)",
       "Bash(npm run import-hubspot:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(dir:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

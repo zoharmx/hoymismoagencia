@@ -430,12 +430,12 @@ function DashboardContent() {
                             </div>
                             <div className="flex items-center text-xs text-slate-400 mb-2">
                               <MapPin className="w-3 h-3 mr-1" />
-                              {shipment.origin.city}, {shipment.origin.state} → {shipment.destination.city}, {shipment.destination.state}
+                              {shipment.origin?.city || shipment.vehicleBrand || 'N/A'}, {shipment.origin?.state || shipment.vehicleModel || ''} → {shipment.destination?.city || shipment.oficina || 'N/A'}, {shipment.destination?.state || ''}
                             </div>
                             <div className="flex items-center justify-between">
                               {getStatusBadge(shipment.status)}
                               <span className="text-xs text-slate-500">
-                                {shipment.createdAt.toDate().toLocaleDateString()}
+                                {shipment.createdAt?.toDate?.().toLocaleDateString() || 'N/A'}
                               </span>
                             </div>
                           </div>
@@ -606,10 +606,10 @@ function DashboardContent() {
                             </td>
                             <td className="py-4 px-4">
                               <p className="text-sm text-white">
-                                {shipment.origin.city}, {shipment.origin.state}
+                                {shipment.origin?.city || shipment.vehicleBrand || 'N/A'}, {shipment.origin?.state || shipment.vehicleModel || ''}
                               </p>
                               <p className="text-xs text-slate-400">
-                                → {shipment.destination.city}, {shipment.destination.state}
+                                → {shipment.destination?.city || shipment.oficina || 'N/A'}, {shipment.destination?.state || ''}
                               </p>
                             </td>
                             <td className="py-4 px-4">
@@ -657,20 +657,19 @@ function DashboardContent() {
                             client.name,
                             client.email,
                             client.phone,
-                            client.type,
+                            client.type || 'individual',
                             client.company || '',
                             client.rfc || '',
-                            client.address.street,
-                            client.address.city,
-                            client.address.state,
-                            client.address.zipCode,
-                            client.address.country,
+                            client.address?.street || '',
+                            client.address?.city || '',
+                            client.address?.state || '',
+                            client.address?.zipCode || '',
+                            client.address?.country || '',
                             client.totalShipments || 0,
-                            // CORRECCIÓN YA EXISTENTE, PERO CONFIRMADA
                             (client.totalSpent || 0).toFixed(2),
                             client.isActive ? 'Activo' : 'Inactivo',
                             client.tags?.join('; ') || '',
-                            client.createdAt.toDate().toLocaleDateString()
+                            client.createdAt?.toDate?.().toLocaleDateString() || 'N/A'
                           ])
 
                           const csvContent = [
@@ -984,11 +983,11 @@ function DashboardContent() {
                             </td>
                             <td className="py-4 px-4">
                               <p className="text-sm text-white">
-                                {invoice.dueDate.toDate().toLocaleDateString()}
+                                {invoice.dueDate?.toDate?.().toLocaleDateString() || 'N/A'}
                               </p>
                               {invoice.paidDate && (
                                 <p className="text-xs text-green-400">
-                                  Pagada: {invoice.paidDate.toDate().toLocaleDateString()}
+                                  Pagada: {invoice.paidDate?.toDate?.().toLocaleDateString() || 'N/A'}
                                 </p>
                               )}
                             </td>
