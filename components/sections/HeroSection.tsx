@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ArrowRight, Package, Shield, Truck, Globe } from 'lucide-react'
+import { ArrowRight, Car, Shield, FileCheck, Globe } from 'lucide-react'
 import CountUp from 'react-countup'
 import { useInView } from 'react-intersection-observer'
 
@@ -13,10 +13,10 @@ export default function HeroSection() {
   })
 
   const stats = [
-    { value: 1500, suffix: '+', label: 'Clientes Satisfechos', icon: Package },
-    { value: 100, suffix: '%', label: 'Entregas Exitosas', icon: Shield },
-    { value: 24, suffix: '/7', label: 'Servicio Continuo', icon: Truck },
-    { value: 3, suffix: '+', label: 'Países Conectados', icon: Globe },
+    { value: 500, suffix: '+', label: 'Vehículos Importados', icon: Car },
+    { value: 100, suffix: '%', label: 'Trámites Exitosos', icon: Shield },
+    { value: 15, suffix: '+', label: 'Años de Experiencia', icon: FileCheck },
+    { value: 5, suffix: '+', label: 'Aduanas Operando', icon: Globe },
   ]
 
   return (
@@ -61,42 +61,41 @@ export default function HeroSection() {
               className="inline-block"
             >
               <span className="px-4 py-2 bg-primary-500/20 border border-primary-500/30 rounded-full text-primary-400 text-sm font-semibold">
-                Conectando Fronteras
+                Agencia Aduanal Certificada
               </span>
             </motion.div>
 
             <h1 className="text-5xl lg:text-7xl font-display font-bold leading-tight">
-              <span className="gradient-text">¡Donde envías hoy...</span>
+              <span className="gradient-text">Importa tu vehículo</span>
               <br />
-              <span className="text-white">Y recibes hoy!</span>
+              <span className="text-white">de forma legal y segura</span>
             </h1>
 
             <p className="text-xl text-slate-300 leading-relaxed max-w-2xl">
-              Tus envíos a México y Centroamérica,{' '}
+              Especialistas en importación de vehículos de USA a México.{' '}
               <span className="text-primary-400 font-semibold">
-                sin complicaciones
+                Trámites aduaneros, pedimentos y legalización
               </span>
-              . Rastreo en tiempo real, sin límite de peso, entregas rápidas y
-              seguras.
+              . Seguimiento en tiempo real de tu proceso.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
               <a href="#cotizar" className="btn-primary group">
-                <span>Cotizar Envío</span>
+                <span>Cotizar Importación</span>
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </a>
-              <a href="#rastreo" className="btn-secondary">Rastrear Paquete</a>
+              <a href="#rastreo" className="btn-secondary">Consultar Trámite</a>
             </div>
 
             {/* Trust Indicators */}
             <div className="flex items-center space-x-6 pt-4">
               <div className="flex items-center space-x-2">
                 <Shield className="w-5 h-5 text-primary-500" />
-                <span className="text-sm text-slate-400">Envíos Seguros</span>
+                <span className="text-sm text-slate-400">100% Legal</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Package className="w-5 h-5 text-primary-500" />
-                <span className="text-sm text-slate-400">Sin Límite de Peso</span>
+                <Car className="w-5 h-5 text-primary-500" />
+                <span className="text-sm text-slate-400">Asesoría Completa</span>
               </div>
             </div>
           </motion.div>
@@ -110,11 +109,11 @@ export default function HeroSection() {
             className="relative"
           >
             <Image
-              src="https://assets.zyrosite.com/m6Lj5RMGlLT19eqJ/hoymismo-imagen-social-pNqRHyFDWzMYgEAS.png"
-              alt="HoyMismo Paquetería Internacional"
+              src="https://assets.zyrosite.com/m6Lj5RMGlLT19eqJ/logo-legalizaciones-AR0M55ebNos5VLzR.png"
+              alt="HoyMismo Agencia Aduanal - Importación de Vehículos"
               width={800}
               height={600}
-              className="w-full h-auto rounded-2xl shadow-2xl"
+              className="w-full h-auto rounded-2xl shadow-2xl bg-slate-800/50 p-8"
               priority
             />
           </motion.div>

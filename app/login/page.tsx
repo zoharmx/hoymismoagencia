@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { Package, Loader2, Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
+import { FileText, Loader2, Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
   const { user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth()
@@ -91,12 +91,14 @@ export default function LoginPage() {
         {/* Logo y título */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-primary-500/20 rounded-2xl backdrop-blur-sm border border-primary-500/30">
-              <Package className="w-10 h-10 text-primary-400" />
-            </div>
+            <img
+              src="https://assets.zyrosite.com/m6Lj5RMGlLT19eqJ/logo-legalizaciones-AR0M55ebNos5VLzR.png"
+              alt="HoyMismo Agencia Aduanal"
+              className="w-20 h-20 object-contain"
+            />
           </div>
           <h1 className="text-4xl font-bold text-white mb-2">HoyMismo</h1>
-          <p className="text-slate-400">Sistema de gestión de paquetería</p>
+          <p className="text-slate-400">Agencia Aduanal - Sistema de Gestión</p>
         </div>
 
         {/* Card de login */}
@@ -271,10 +273,10 @@ export default function LoginPage() {
           <p className="mt-1">
             Contacta a{' '}
             <a
-              href="mailto:info@hoymismo.com"
+              href="mailto:info@hoymismoagencia.com"
               className="text-primary-400 hover:text-primary-300"
             >
-              info@hoymismo.com
+              info@hoymismoagencia.com
             </a>
           </p>
         </div>

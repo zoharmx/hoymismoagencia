@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { useState } from 'react'
-import { Search, Package, MapPin, Truck, CheckCircle2, Clock, Loader2, AlertCircle } from 'lucide-react'
+import { Search, FileText, MapPin, Car, CheckCircle2, Clock, Loader2, AlertCircle } from 'lucide-react'
 import { searchShipments } from '@/lib/firestore'
 import type { Shipment } from '@/types/crm'
 
@@ -54,16 +54,15 @@ export default function TrackingSection() {
           className="text-center mb-12"
         >
           <span className="px-4 py-2 bg-primary-500/20 border border-primary-500/30 rounded-full text-primary-400 text-sm font-semibold inline-block mb-6">
-            Rastreo en Tiempo Real
+            Seguimiento de Trámite
           </span>
           <h2 className="text-4xl lg:text-5xl font-display font-bold mb-6">
-            <span className="gradient-text">Control total.</span> Visibilidad en
+            <span className="gradient-text">Control total.</span> Seguimiento en
             tiempo real.
           </h2>
           <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-            Nuestro sistema de rastreo en línea te da la certeza de saber dónde
-            está tu envío en cada etapa del viaje. Sin sorpresas, solo
-            información clara y al momento.
+            Nuestro sistema te permite conocer el estado de tu trámite de importación
+            en cada etapa del proceso. Transparencia total en todo momento.
           </p>
         </motion.div>
 
@@ -76,11 +75,11 @@ export default function TrackingSection() {
             className="order-2 lg:order-1"
           >
             <Image
-              src="https://assets.zyrosite.com/m6Lj5RMGlLT19eqJ/imagen-4-tTu30dkARYJfQ7I1.png"
-              alt="Rastreo en tiempo real HoyMismo"
+              src="https://assets.zyrosite.com/m6Lj5RMGlLT19eqJ/logo-legalizaciones-AR0M55ebNos5VLzR.png"
+              alt="Seguimiento de trámites HoyMismo Agencia Aduanal"
               width={600}
               height={400}
-              className="w-full h-auto rounded-2xl shadow-2xl"
+              className="w-full h-auto rounded-2xl shadow-2xl bg-slate-800/50 p-8"
             />
           </motion.div>
 
@@ -95,12 +94,12 @@ export default function TrackingSection() {
             <form onSubmit={handleTrack} className="flex gap-4">
               <div className="flex-1">
                 <div className="relative">
-                  <Package className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <FileText className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <input
                     type="text"
                     value={trackingNumber}
                     onChange={(e) => setTrackingNumber(e.target.value)}
-                    placeholder="Ingresa tu número de rastreo o ID de envío"
+                    placeholder="Ingresa tu folio de trámite o VIN"
                     className="w-full pl-12 pr-4 py-4 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-primary-500 transition-colors"
                     required
                     disabled={loading}
@@ -116,7 +115,7 @@ export default function TrackingSection() {
                 ) : (
                   <>
                     <Search className="w-5 h-5 mr-2" />
-                    Rastrear
+                    Consultar
                   </>
                 )}
               </button>
@@ -222,7 +221,7 @@ export default function TrackingSection() {
                           : 'bg-gradient-to-r from-primary-500 via-primary-400 to-slate-700'
                       }`} />
                       {trackingData.status !== 'entregado' && trackingData.status !== 'pendiente' && (
-                        <Truck className="absolute top-1/2 left-3/4 transform -translate-y-1/2 -translate-x-1/2 w-6 h-6 text-primary-400" />
+                        <Car className="absolute top-1/2 left-3/4 transform -translate-y-1/2 -translate-x-1/2 w-6 h-6 text-primary-400" />
                       )}
                     </div>
                   </div>
@@ -286,10 +285,10 @@ export default function TrackingSection() {
               {/* CTA */}
               <div className="card-gradient p-6 border-l-4 border-primary-500">
                 <p className="text-slate-300 mb-4">
-                  ¿Tienes preguntas sobre tu envío?
+                  ¿Tienes preguntas sobre tu trámite?
                 </p>
                 <button className="btn-secondary">
-                  Contactar Soporte
+                  Contactar Asesor
                 </button>
               </div>
             </motion.div>
@@ -303,9 +302,9 @@ export default function TrackingSection() {
                 transition={{ delay: 0.4 }}
                 className="text-center py-12"
               >
-                <Package className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                <FileText className="w-16 h-16 text-slate-600 mx-auto mb-4" />
                 <p className="text-slate-400">
-                  Ingresa tu número de rastreo para ver el estado de tu envío
+                  Ingresa tu folio de trámite o VIN para consultar el estado de tu importación
                 </p>
               </motion.div>
             )}

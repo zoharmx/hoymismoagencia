@@ -23,11 +23,11 @@ export default function CTASection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl lg:text-6xl font-display font-bold mb-6">
-            Empecemos a construir{' '}
-            <span className="gradient-text">tu puente</span>
+            Importa tu vehículo{' '}
+            <span className="gradient-text">sin complicaciones</span>
           </h2>
           <p className="text-2xl text-slate-300 max-w-3xl mx-auto">
-            ¿Listo para conectar tu mundo?
+            ¿Listo para comenzar tu trámite de importación?
           </p>
         </motion.div>
 
@@ -57,7 +57,7 @@ export default function CTASection() {
             </a>
           </motion.div>
 
-          {/* Track Package */}
+          {/* Track Process */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -68,16 +68,16 @@ export default function CTASection() {
               <MessageSquare className="w-8 h-8 text-white" />
             </div>
             <h3 className="text-2xl font-bold text-white mb-4">
-              Rastrear Paquete
+              Consultar Trámite
             </h3>
             <p className="text-slate-400 mb-6">
-              Consulta el estado de tu envío en tiempo real
+              Consulta el estado de tu importación en tiempo real
             </p>
             <a
               href="#rastreo"
               className="btn-primary w-full group inline-flex items-center justify-center"
             >
-              Rastrear Ahora
+              Consultar Ahora
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </a>
           </motion.div>
@@ -99,10 +99,10 @@ export default function CTASection() {
               Envíanos un mensaje y te responderemos pronto
             </p>
             <a
-              href="mailto:ventas@hoymismopaqueteria.com"
+              href="mailto:info@hoymismoagencia.com"
               className="btn-secondary w-full inline-block"
             >
-              ventas@hoymismopaqueteria.com
+              info@hoymismoagencia.com
             </a>
           </motion.div>
         </div>
@@ -119,13 +119,13 @@ export default function CTASection() {
               ¿Tienes una pregunta?
             </h3>
             <p className="text-slate-300 mb-6">
-              Nuestro equipo de servicio al cliente está disponible para
-              ayudarte con cualquier consulta sobre envíos, rastreo, o
+              Nuestro equipo de agentes aduanales está disponible para
+              ayudarte con cualquier consulta sobre importaciones, trámites o
               cotizaciones.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="#cotizar" className="btn-primary">
-                Obtener Cotización
+                Cotizar Importación
               </a>
               <a href="/portal" className="btn-secondary">
                 Acceder al Portal

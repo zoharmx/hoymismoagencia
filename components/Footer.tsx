@@ -13,8 +13,8 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Image
-                src="/images/logo.png"
-                alt="HoyMismo Logo"
+                src="https://assets.zyrosite.com/m6Lj5RMGlLT19eqJ/logo-legalizaciones-AR0M55ebNos5VLzR.png"
+                alt="HoyMismo Agencia Aduanal"
                 width={50}
                 height={50}
               />
@@ -22,12 +22,12 @@ export default function Footer() {
                 <span className="font-display font-bold text-xl gradient-text">
                   HoyMismo
                 </span>
-                <p className="text-xs text-slate-400">Paquetería</p>
+                <p className="text-xs text-slate-400">Agencia Aduanal</p>
               </div>
             </div>
             <p className="text-slate-400 text-sm">
-              Tu puente directo entre EE. UU., México y Centroamérica. Envíos
-              eficientes y responsables.
+              Agencia aduanal especializada en importación de vehículos de USA a México.
+              Trámites legales, seguros y profesionales.
             </p>
           </div>
 
@@ -50,7 +50,7 @@ export default function Footer() {
                   href="/#rastreo"
                   className="text-slate-400 hover:text-white transition-colors text-sm"
                 >
-                  Rastrear Paquete
+                  Seguimiento de Trámite
                 </Link>
               </li>
               <li>
@@ -58,7 +58,7 @@ export default function Footer() {
                   href="/#cotizar"
                   className="text-slate-400 hover:text-white transition-colors text-sm"
                 >
-                  Cotizar Envío
+                  Cotizar Importación
                 </Link>
               </li>
               <li>
@@ -84,11 +84,11 @@ export default function Footer() {
               </li>
               <li className="flex items-center space-x-2 text-slate-400 text-sm">
                 <Mail className="w-4 h-4 text-primary-500" />
-                <span>ventas@hoymismopaqueteria.com</span>
+                <span>info@hoymismoagencia.com</span>
               </li>
               <li className="flex items-start space-x-2 text-slate-400 text-sm">
                 <MapPin className="w-4 h-4 text-primary-500 mt-1 flex-shrink-0" />
-                <span>Houston, TX - Monterrey, México</span>
+                <span>Houston, TX - Nuevo Laredo, México</span>
               </li>
             </ul>
           </div>
@@ -119,8 +119,8 @@ export default function Footer() {
               </a>
             </div>
             <div className="card-gradient p-4">
-              <p className="text-3xl font-bold gradient-text">1500+</p>
-              <p className="text-xs text-slate-400">Clientes Satisfechos</p>
+              <p className="text-3xl font-bold gradient-text">500+</p>
+              <p className="text-xs text-slate-400">Vehículos Importados</p>
             </div>
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <p className="text-slate-400 text-sm">
-            © {currentYear} HoyMismo Paquetería. Todos los derechos reservados.
+            © {currentYear} HoyMismo Agencia Aduanal. Todos los derechos reservados.
           </p>
           <div className="flex space-x-6">
             <Link

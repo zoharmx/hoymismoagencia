@@ -1,6 +1,9 @@
-import type { Shipment, Invoice, Client } from '@/types/crm'
+import type { Shipment, Invoice, Client, ImportProcess } from '@/types/crm'
 
-// Generar etiqueta de envío profesional
+// Logo URL para HoyMismo Agencia Aduanal
+const LOGO_URL = 'https://assets.zyrosite.com/m6Lj5RMGlLT19eqJ/logo-legalizaciones-AR0M55ebNos5VLzR.png'
+
+// Generar etiqueta de envío profesional (legacy - para compatibilidad)
 export function generateShippingLabel(shipment: Shipment, client: Client): string {
   const fecha = shipment.createdAt.toDate().toLocaleDateString('es-MX', {
     day: '2-digit',
@@ -238,10 +241,10 @@ export function generateShippingLabel(shipment: Shipment, client: Client): strin
         <div class="watermark">${shipment.shipmentId}</div>
         <div class="label-container">
             <div class="header">
-                <img src="https://assets.zyrosite.com/m6Lj5RMGlLT19eqJ/logo-hoy-mismo-YD0Bz1op0eizKk6L.png" alt="HoyMismo" class="logo">
+                <img src="${LOGO_URL}" alt="HoyMismo Agencia Aduanal" class="logo">
                 <div class="company-info">
-                    <div class="company-name">HoyMismo Paquetería</div>
-                    <div class="company-subtitle">¡Donde envías hoy... Y recibes hoy!</div>
+                    <div class="company-name">HoyMismo Agencia Aduanal</div>
+                    <div class="company-subtitle">Importación de Vehículos USA-México</div>
                 </div>
             </div>
 
@@ -456,10 +459,10 @@ export function generateInvoicePDF(invoice: Invoice): string {
 </head>
 <body>
     <div class="header">
-        <img src="https://assets.zyrosite.com/m6Lj5RMGlLT19eqJ/logo-hoy-mismo-YD0Bz1op0eizKk6L.png" alt="HoyMismo" class="logo">
+        <img src="${LOGO_URL}" alt="HoyMismo Agencia Aduanal" class="logo">
         <div class="company">
-            <div class="company-name">HoyMismo Paquetería</div>
-            <div class="company-tagline">Sistema de gestión de paquetería</div>
+            <div class="company-name">HoyMismo Agencia Aduanal</div>
+            <div class="company-tagline">Importación de Vehículos USA-México</div>
         </div>
     </div>
 
@@ -541,9 +544,9 @@ export function generateInvoicePDF(invoice: Invoice): string {
     ` : ''}
 
     <div class="footer">
-        <strong>HoyMismo Paquetería</strong><br>
-        info@hoymismo.com | +1 (346) 555-0100<br>
-        ¡Donde envías hoy... Y recibes hoy!
+        <strong>HoyMismo Agencia Aduanal</strong><br>
+        info@hoymismoagencia.com | +1 (346) 580-1238<br>
+        Importación de Vehículos USA-México
     </div>
 
     <div class="no-print" style="text-align: center; margin-top: 20px;">
@@ -553,6 +556,287 @@ export function generateInvoicePDF(invoice: Invoice): string {
         <button onclick="window.close()" style="padding: 10px 20px; background: #6B7280; color: white; border: none; border-radius: 5px; cursor: pointer;">
             Cerrar
         </button>
+    </div>
+</body>
+</html>
+  `.trim()
+}
+
+// Generar reporte de trámite de importación
+export function generateImportProcessReport(process: ImportProcess, client: Client): string {
+  const fecha = process.createdAt.toDate().toLocaleDateString('es-MX', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
+
+  const statusLabels: Record<string, string> = {
+    'contacto-creado': 'Contacto Registrado',
+    'documentacion-inicial': 'Documentación Inicial',
+    'vehiculo-validado': 'Vehículo Validado',
+    'anticipo-recibido': 'Anticipo Recibido',
+    'tramite-en-proceso': 'Trámite en Proceso',
+    'pedimento-generado': 'Pedimento Generado',
+    'liquidacion': 'En Liquidación',
+    'tramite-finalizado': 'Trámite Finalizado',
+    'cancelado': 'Cancelado'
+  }
+
+  const statusColors: Record<string, string> = {
+    'contacto-creado': '#6B7280',
+    'documentacion-inicial': '#F59E0B',
+    'vehiculo-validado': '#3B82F6',
+    'anticipo-recibido': '#10B981',
+    'tramite-en-proceso': '#8B5CF6',
+    'pedimento-generado': '#EC4899',
+    'liquidacion': '#F97316',
+    'tramite-finalizado': '#22C55E',
+    'cancelado': '#EF4444'
+  }
+
+  return `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Trámite ${process.folio}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            padding: 30px;
+            max-width: 850px;
+            margin: 0 auto;
+            background: white;
+            color: #1e293b;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 25px;
+            border-bottom: 3px solid #4F46E5;
+            margin-bottom: 30px;
+        }
+        .logo { height: 70px; }
+        .company { text-align: right; }
+        .company-name { font-size: 26px; font-weight: 700; color: #4F46E5; }
+        .company-tagline { color: #64748b; font-size: 14px; }
+        .folio-box {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .folio-number { font-size: 28px; font-weight: 700; }
+        .folio-date { font-size: 14px; opacity: 0.9; }
+        .status-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 14px;
+            color: white;
+            background: ${statusColors[process.status] || '#6B7280'};
+        }
+        .section { margin-bottom: 25px; }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .info-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #4F46E5;
+        }
+        .info-label { color: #64748b; font-size: 13px; margin-bottom: 5px; }
+        .info-value { font-size: 16px; font-weight: 500; color: #1e293b; }
+        .vehicle-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        .vehicle-title { font-size: 22px; font-weight: 700; margin-bottom: 15px; }
+        .vehicle-vin { font-family: monospace; font-size: 16px; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 6px; }
+        .payment-summary {
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        .payment-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center; }
+        .payment-item-label { color: #64748b; font-size: 13px; }
+        .payment-item-value { font-size: 24px; font-weight: 700; color: #166534; }
+        .history-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .history-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4F46E5;
+            margin-right: 15px;
+            margin-top: 5px;
+        }
+        .history-content { flex: 1; }
+        .history-status { font-weight: 600; color: #1e293b; }
+        .history-desc { color: #64748b; font-size: 14px; margin-top: 3px; }
+        .history-date { color: #94a3b8; font-size: 12px; margin-top: 5px; }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            text-align: center;
+            color: #64748b;
+        }
+        .no-print { margin-top: 20px; text-align: center; }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0 5px;
+        }
+        .btn-primary { background: #4F46E5; color: white; }
+        .btn-secondary { background: #6B7280; color: white; }
+        @media print { .no-print { display: none; } body { padding: 15px; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="${LOGO_URL}" alt="HoyMismo Agencia Aduanal" class="logo">
+        <div class="company">
+            <div class="company-name">HoyMismo Agencia Aduanal</div>
+            <div class="company-tagline">Importación de Vehículos USA-México</div>
+        </div>
+    </div>
+
+    <div class="folio-box">
+        <div>
+            <div class="folio-number">Folio: ${process.folio}</div>
+            <div class="folio-date">Fecha de inicio: ${fecha}</div>
+        </div>
+        <span class="status-badge">${statusLabels[process.status] || process.status}</span>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Información del Cliente</div>
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-label">Nombre Completo</div>
+                <div class="info-value">${client.name} ${client.lastName}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Correo Electrónico</div>
+                <div class="info-value">${client.email}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Teléfono</div>
+                <div class="info-value">${client.phone || 'N/A'}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">WhatsApp</div>
+                <div class="info-value">${client.whatsapp || client.phone || 'N/A'}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="vehicle-card">
+        <div class="vehicle-title">${process.vehicleBrand} ${process.vehicleModel}</div>
+        <div class="vehicle-vin">VIN: ${process.vehicleVin}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Detalles del Trámite</div>
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-label">Tipo de Pedimento</div>
+                <div class="info-value">${process.tipoPedimento || 'Por definir'}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Oficina / Aduana</div>
+                <div class="info-value">${process.oficina || 'Por asignar'}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Gestor Asignado</div>
+                <div class="info-value">${process.gestorName || 'Por asignar'}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Moneda</div>
+                <div class="info-value">${process.currency || 'USD'}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="payment-summary">
+        <div class="section-title" style="border-color: #22c55e;">Resumen de Pagos</div>
+        <div class="payment-grid">
+            <div>
+                <div class="payment-item-label">Anticipo</div>
+                <div class="payment-item-value">$${(process.anticipo || 0).toFixed(2)}</div>
+            </div>
+            <div>
+                <div class="payment-item-label">Liquidación</div>
+                <div class="payment-item-value">$${(process.liquidacion || 0).toFixed(2)}</div>
+            </div>
+            <div>
+                <div class="payment-item-label">Total</div>
+                <div class="payment-item-value">$${(process.totalCost || (process.anticipo || 0) + (process.liquidacion || 0)).toFixed(2)}</div>
+            </div>
+        </div>
+    </div>
+
+    ${process.processHistory && process.processHistory.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Historial del Trámite</div>
+        ${process.processHistory.map(event => `
+            <div class="history-item">
+                <div class="history-dot"></div>
+                <div class="history-content">
+                    <div class="history-status">${statusLabels[event.status] || event.status}</div>
+                    <div class="history-desc">${event.description}</div>
+                    <div class="history-date">${event.date?.toDate ? event.date.toDate().toLocaleDateString('es-MX') : 'N/A'} - ${event.location}</div>
+                </div>
+            </div>
+        `).join('')}
+    </div>
+    ` : ''}
+
+    ${process.notes ? `
+    <div class="section">
+        <div class="section-title">Notas</div>
+        <p style="color: #64748b; line-height: 1.6;">${process.notes}</p>
+    </div>
+    ` : ''}
+
+    <div class="footer">
+        <strong>HoyMismo Agencia Aduanal</strong><br>
+        info@hoymismoagencia.com | +1 (346) 580-1238<br>
+        Importación de Vehículos USA-México
+    </div>
+
+    <div class="no-print">
+        <button class="btn btn-primary" onclick="window.print()">Imprimir / Guardar PDF</button>
+        <button class="btn btn-secondary" onclick="window.close()">Cerrar</button>
     </div>
 </body>
 </html>

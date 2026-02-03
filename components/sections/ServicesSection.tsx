@@ -4,13 +4,13 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import {
-  Package,
-  Scale,
+  Car,
+  FileText,
   Globe,
   Shield,
   Clock,
   MapPin,
-  Boxes,
+  ClipboardCheck,
   Headphones,
 } from 'lucide-react'
 
@@ -22,68 +22,68 @@ export default function ServicesSection() {
 
   const problems = [
     {
-      title: 'Límites de Peso Estrictos',
-      description: 'Te obligan a dividir envíos o a pagar costos excesivos.',
+      title: 'Trámites Complicados',
+      description: 'Documentación confusa y requisitos que cambian constantemente.',
     },
     {
-      title: 'Procesos Confusos',
-      description: 'Documentación que genera dudas y temor a errores.',
+      title: 'Riesgo de Fraude',
+      description: 'Gestores informales que no garantizan un proceso legal.',
     },
     {
-      title: 'Entregas Inciertas',
-      description: 'Falta de visibilidad y fechas de llegada poco fiables.',
+      title: 'Tiempos Indefinidos',
+      description: 'Sin visibilidad del estado de tu trámite de importación.',
     },
     {
-      title: 'Rastreo Poco Claro',
-      description: 'No saber dónde está tu paquete en cada momento.',
+      title: 'Costos Ocultos',
+      description: 'Sorpresas en impuestos, honorarios y gastos adicionales.',
     },
   ]
 
   const features = [
     {
-      icon: Scale,
-      title: 'Sin Límite de Peso',
+      icon: Car,
+      title: 'Importación de Vehículos',
       description:
-        'Envía todo lo que necesites en una sola caja. Olvídate de las restricciones.',
+        'Importamos tu vehículo de USA a México de forma legal y segura.',
     },
     {
-      icon: Boxes,
-      title: 'Flexibilidad de Empaque',
+      icon: FileText,
+      title: 'Pedimentos de Importación',
       description:
-        'Diversas opciones de tamaño de caja para que tu envío se adapte perfectamente.',
+        'Elaboración de pedimentos A1, A2, F4 y todos los tipos requeridos.',
     },
     {
       icon: Shield,
-      title: 'Envío Eficiente y Responsable',
+      title: 'Proceso 100% Legal',
       description:
-        'Cada paquete es manejado con la máxima prioridad y cuidado.',
+        'Cumplimos con todas las normativas aduaneras y de SENASICA.',
     },
     {
       icon: MapPin,
-      title: 'Rastreo en Tiempo Real',
+      title: 'Seguimiento en Tiempo Real',
       description:
-        'Visibilidad completa de tu paquete en cada etapa del viaje.',
+        'Visibilidad completa de tu trámite en cada etapa del proceso.',
     },
     {
       icon: Globe,
-      title: 'Cobertura Amplia',
-      description: 'Conectamos EE.UU., México y toda Centroamérica.',
+      title: 'Múltiples Aduanas',
+      description: 'Operamos en Nuevo Laredo, Reynosa, Matamoros y más.',
     },
     {
       icon: Clock,
-      title: 'Entrega Rápida',
+      title: 'Tiempos Optimizados',
       description:
-        'Optimizamos cada ruta para entregas rápidas y confiables.',
+        'Agilizamos tu trámite para que recibas tu vehículo lo antes posible.',
     },
     {
       icon: Headphones,
-      title: 'Soporte Dedicado',
-      description: 'Nuestro equipo está listo para ayudarte en cada paso.',
+      title: 'Asesoría Personalizada',
+      description: 'Te guiamos en cada paso del proceso de importación.',
     },
     {
-      icon: Package,
-      title: 'Proceso Simplificado',
-      description: 'De principio a fin, hacer un envío nunca fue tan fácil.',
+      icon: ClipboardCheck,
+      title: 'Gestión Documental',
+      description: 'Nos encargamos de todos los documentos requeridos.',
     },
   ]
 
@@ -105,8 +105,8 @@ export default function ServicesSection() {
             El Problema
           </span>
           <h2 className="text-4xl lg:text-5xl font-display font-bold mb-6">
-            ¿Enviar un paquete se siente como{' '}
-            <span className="gradient-text">una carrera de obstáculos?</span>
+            ¿Importar un vehículo se siente como{' '}
+            <span className="gradient-text">un laberinto burocrático?</span>
           </h2>
         </motion.div>
 
@@ -139,10 +139,10 @@ export default function ServicesSection() {
           </span>
           <h2 className="text-4xl lg:text-5xl font-display font-bold mb-6">
             Diseñado para tu{' '}
-            <span className="gradient-text">libertad y confianza</span>
+            <span className="gradient-text">tranquilidad y confianza</span>
           </h2>
           <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-            Una experiencia de paquetería donde la simplicidad, la velocidad y
+            Una agencia aduanal donde la transparencia, la legalidad y
             tu tranquilidad son el centro de todo lo que hacemos.
           </p>
         </motion.div>
@@ -176,11 +176,11 @@ export default function ServicesSection() {
         >
           <div className="relative rounded-3xl overflow-hidden shadow-2xl">
             <Image
-              src="https://assets.zyrosite.com/m6Lj5RMGlLT19eqJ/imagen-3-4hGnHIM9rv6xvgmp.png"
-              alt="Equipo HoyMismo"
+              src="https://assets.zyrosite.com/m6Lj5RMGlLT19eqJ/logo-legalizaciones-AR0M55ebNos5VLzR.png"
+              alt="HoyMismo Agencia Aduanal"
               width={600}
               height={400}
-              className="w-full h-auto"
+              className="w-full h-auto bg-slate-800/50 p-8"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-dark-900/80 via-transparent to-transparent" />
           </div>
@@ -188,16 +188,16 @@ export default function ServicesSection() {
           <div>
             <h3 className="text-3xl font-bold text-white mb-4">Compromiso con la excelencia</h3>
             <p className="text-lg text-slate-300 mb-6">
-              Nuestro equipo trabaja incansablemente para asegurar que cada envío llegue a tiempo y en perfectas condiciones.
+              Nuestro equipo de agentes aduanales certificados trabaja para que tu importación sea un proceso transparente y exitoso.
             </p>
             <div className="grid grid-cols-2 gap-4">
               <div className="card-gradient p-4">
-                <p className="text-3xl font-bold gradient-text mb-1">24/7</p>
-                <p className="text-sm text-slate-400">Atención continua</p>
+                <p className="text-3xl font-bold gradient-text mb-1">15+</p>
+                <p className="text-sm text-slate-400">Años de experiencia</p>
               </div>
               <div className="card-gradient p-4">
                 <p className="text-3xl font-bold gradient-text mb-1">100%</p>
-                <p className="text-sm text-slate-400">Satisfacción garantizada</p>
+                <p className="text-sm text-slate-400">Trámites exitosos</p>
               </div>
             </div>
           </div>
@@ -211,13 +211,13 @@ export default function ServicesSection() {
           className="mt-16 text-center"
         >
           <div className="inline-block card-gradient p-8">
-            <p className="text-5xl font-bold gradient-text mb-2">1500+</p>
+            <p className="text-5xl font-bold gradient-text mb-2">500+</p>
             <p className="text-slate-300 font-semibold mb-1">
-              CLIENTES SATISFECHOS
+              VEHÍCULOS IMPORTADOS
             </p>
             <p className="text-sm text-slate-400">
-              "Nuestra confianza es el reflejo de la tranquilidad de nuestros
-              clientes."
+              "Tu confianza es nuestra prioridad. Cada trámite es manejado con
+              total profesionalismo."
             </p>
           </div>
         </motion.div>

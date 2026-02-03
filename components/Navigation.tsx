@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, Package, User } from 'lucide-react'
+import { Menu, X, FileText, User } from 'lucide-react'
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
@@ -20,7 +20,7 @@ export default function Navigation() {
   const navLinks = [
     { name: 'Inicio', href: '/' },
     { name: 'Servicios', href: '#servicios' },
-    { name: 'Rastreo', href: '#rastreo' },
+    { name: 'Seguimiento', href: '#rastreo' },
     { name: 'Cotizar', href: '#cotizar' },
     { name: 'Contacto', href: '#contacto' },
   ]
@@ -38,8 +38,8 @@ export default function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">
             <Image
-              src="/images/logo.png"
-              alt="HoyMismo Logo"
+              src="https://assets.zyrosite.com/m6Lj5RMGlLT19eqJ/logo-legalizaciones-AR0M55ebNos5VLzR.png"
+              alt="HoyMismo Agencia Aduanal"
               width={50}
               height={50}
               className="transition-transform duration-300 group-hover:scale-110"
@@ -48,7 +48,7 @@ export default function Navigation() {
               <span className="font-display font-bold text-xl gradient-text">
                 HoyMismo
               </span>
-              <p className="text-xs text-slate-400">Paquetería</p>
+              <p className="text-xs text-slate-400">Agencia Aduanal</p>
             </div>
           </Link>
 
@@ -78,7 +78,7 @@ export default function Navigation() {
               href="/dashboard"
               className="flex items-center space-x-2 btn-primary"
             >
-              <Package className="w-4 h-4" />
+              <FileText className="w-4 h-4" />
               <span>Dashboard</span>
             </Link>
           </div>
@@ -121,7 +121,7 @@ export default function Navigation() {
                   onClick={() => setIsOpen(false)}
                   className="flex items-center space-x-2 btn-primary w-full justify-center"
                 >
-                  <Package className="w-4 h-4" />
+                  <FileText className="w-4 h-4" />
                   <span>Dashboard</span>
                 </Link>
               </div>

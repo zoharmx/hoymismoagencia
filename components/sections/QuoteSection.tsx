@@ -3,14 +3,14 @@
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { useForm } from 'react-hook-form'
-import { Package, MapPin, Weight, DollarSign, Send } from 'lucide-react'
+import { Car, MapPin, Calendar, DollarSign, Send } from 'lucide-react'
 import { useState } from 'react'
 
 type QuoteFormData = {
-  fromCountry: string
-  toCountry: string
-  weight: number
-  packageType: string
+  vehicleType: string
+  vehicleYear: number
+  vehicleBrand: string
+  importType: string
   name: string
   email: string
   phone: string
@@ -31,16 +31,16 @@ export default function QuoteSection() {
     watch,
   } = useForm<QuoteFormData>()
 
-  const weight = watch('weight')
-  const toCountry = watch('toCountry')
+  const vehicleYear = watch('vehicleYear')
+  const importType = watch('importType')
 
   const onSubmit = (data: QuoteFormData) => {
-    const baseRate = 10
-    const weightRate = data.weight * 2.5
-    const countryMultiplier =
-      data.toCountry === 'mexico' ? 1 : data.toCountry === 'guatemala' ? 1.2 : 1.3
+    // Estimación básica para importación de vehículos
+    const baseRate = 500 // Honorarios base
+    const yearMultiplier = data.vehicleYear >= 2020 ? 1.2 : data.vehicleYear >= 2015 ? 1.0 : 0.8
+    const typeMultiplier = data.importType === 'definitiva' ? 1.0 : data.importType === 'temporal' ? 0.7 : 0.5
 
-    const estimate = (baseRate + weightRate) * countryMultiplier
+    const estimate = baseRate * yearMultiplier * typeMultiplier
     setEstimatedPrice(estimate)
 
     console.log('Quote request:', data)
@@ -56,14 +56,13 @@ export default function QuoteSection() {
           className="text-center mb-12"
         >
           <span className="px-4 py-2 bg-primary-500/20 border border-primary-500/30 rounded-full text-primary-400 text-sm font-semibold inline-block mb-6">
-            Cotización Instantánea
+            Cotización de Importación
           </span>
           <h2 className="text-4xl lg:text-5xl font-display font-bold mb-6">
-            Obtén tu <span className="gradient-text">cotización</span> al
-            instante
+            Obtén tu <span className="gradient-text">cotización</span> de importación
           </h2>
           <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-            Proceso simple y transparente. Sin sorpresas, sin costos ocultos.
+            Proceso transparente. Te decimos exactamente cuánto costará importar tu vehículo.
           </p>
         </motion.div>
 
@@ -76,99 +75,96 @@ export default function QuoteSection() {
             className="card-gradient p-8"
           >
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {/* Origin */}
+              {/* Vehicle Type */}
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
-                  <MapPin className="w-4 h-4 inline mr-2" />
-                  País de Origen
+                  <Car className="w-4 h-4 inline mr-2" />
+                  Tipo de Vehículo
                 </label>
                 <select
-                  {...register('fromCountry', {
-                    required: 'Selecciona el país de origen',
-                  })}
-                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-primary-500 transition-colors"
-                >
-                  <option value="">Selecciona un país</option>
-                  <option value="usa">Estados Unidos</option>
-                  <option value="canada">Canadá</option>
-                </select>
-                {errors.fromCountry && (
-                  <p className="text-red-400 text-sm mt-1">
-                    {errors.fromCountry.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Destination */}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  <MapPin className="w-4 h-4 inline mr-2" />
-                  País de Destino
-                </label>
-                <select
-                  {...register('toCountry', {
-                    required: 'Selecciona el país de destino',
-                  })}
-                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-primary-500 transition-colors"
-                >
-                  <option value="">Selecciona un país</option>
-                  <option value="mexico">México</option>
-                  <option value="guatemala">Guatemala</option>
-                  <option value="elsalvador">El Salvador</option>
-                  <option value="honduras">Honduras</option>
-                  <option value="nicaragua">Nicaragua</option>
-                  <option value="costarica">Costa Rica</option>
-                </select>
-                {errors.toCountry && (
-                  <p className="text-red-400 text-sm mt-1">
-                    {errors.toCountry.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Weight */}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  <Weight className="w-4 h-4 inline mr-2" />
-                  Peso Aproximado (lbs)
-                </label>
-                <input
-                  type="number"
-                  {...register('weight', {
-                    required: 'Ingresa el peso',
-                    min: { value: 1, message: 'El peso mínimo es 1 lb' },
-                  })}
-                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-primary-500 transition-colors"
-                  placeholder="Ej: 25"
-                />
-                {errors.weight && (
-                  <p className="text-red-400 text-sm mt-1">
-                    {errors.weight.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Package Type */}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  <Package className="w-4 h-4 inline mr-2" />
-                  Tipo de Paquete
-                </label>
-                <select
-                  {...register('packageType', {
-                    required: 'Selecciona el tipo de paquete',
+                  {...register('vehicleType', {
+                    required: 'Selecciona el tipo de vehículo',
                   })}
                   className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-primary-500 transition-colors"
                 >
                   <option value="">Selecciona el tipo</option>
-                  <option value="documents">Documentos</option>
-                  <option value="personal">Efectos Personales</option>
-                  <option value="commercial">Mercancía Comercial</option>
-                  <option value="electronics">Electrónicos</option>
+                  <option value="sedan">Sedán / Compacto</option>
+                  <option value="suv">SUV / Camioneta</option>
+                  <option value="pickup">Pickup / Truck</option>
+                  <option value="motorcycle">Motocicleta</option>
+                  <option value="other">Otro</option>
                 </select>
-                {errors.packageType && (
+                {errors.vehicleType && (
                   <p className="text-red-400 text-sm mt-1">
-                    {errors.packageType.message}
+                    {errors.vehicleType.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Vehicle Year */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <Calendar className="w-4 h-4 inline mr-2" />
+                  Año del Vehículo
+                </label>
+                <input
+                  type="number"
+                  {...register('vehicleYear', {
+                    required: 'Ingresa el año del vehículo',
+                    min: { value: 1990, message: 'Año mínimo: 1990' },
+                    max: { value: 2026, message: 'Año máximo: 2026' },
+                  })}
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-primary-500 transition-colors"
+                  placeholder="Ej: 2020"
+                />
+                {errors.vehicleYear && (
+                  <p className="text-red-400 text-sm mt-1">
+                    {errors.vehicleYear.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Vehicle Brand */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <Car className="w-4 h-4 inline mr-2" />
+                  Marca del Vehículo
+                </label>
+                <input
+                  type="text"
+                  {...register('vehicleBrand', {
+                    required: 'Ingresa la marca del vehículo',
+                  })}
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-primary-500 transition-colors"
+                  placeholder="Ej: Toyota, Ford, Chevrolet"
+                />
+                {errors.vehicleBrand && (
+                  <p className="text-red-400 text-sm mt-1">
+                    {errors.vehicleBrand.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Import Type */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <MapPin className="w-4 h-4 inline mr-2" />
+                  Tipo de Pedimento
+                </label>
+                <select
+                  {...register('importType', {
+                    required: 'Selecciona el tipo de importación',
+                  })}
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-primary-500 transition-colors"
+                >
+                  <option value="">Selecciona el tipo</option>
+                  <option value="definitiva">A1 - Importación Definitiva</option>
+                  <option value="temporal">A2 - Importación Temporal</option>
+                  <option value="retorno">F4 - Retorno de Vehículo</option>
+                </select>
+                {errors.importType && (
+                  <p className="text-red-400 text-sm mt-1">
+                    {errors.importType.message}
                   </p>
                 )}
               </div>
@@ -232,7 +228,7 @@ export default function QuoteSection() {
 
               <button type="submit" className="btn-primary w-full group">
                 <Send className="w-5 h-5 mr-2" />
-                Obtener Cotización
+                Cotizar Importación
               </button>
             </form>
           </motion.div>
@@ -252,12 +248,12 @@ export default function QuoteSection() {
                 className="card-gradient p-8 text-center"
               >
                 <DollarSign className="w-12 h-12 text-primary-500 mx-auto mb-4" />
-                <p className="text-slate-400 mb-2">Precio Estimado</p>
+                <p className="text-slate-400 mb-2">Honorarios Estimados</p>
                 <p className="text-5xl font-bold gradient-text">
-                  ${estimatedPrice.toFixed(2)}
+                  ${estimatedPrice.toFixed(2)} USD
                 </p>
                 <p className="text-sm text-slate-400 mt-4">
-                  *Precio aproximado sujeto a confirmación
+                  *No incluye impuestos de importación. Cotización sujeta a validación.
                 </p>
               </motion.div>
             )}
@@ -265,24 +261,29 @@ export default function QuoteSection() {
             {/* Process Steps */}
             <div className="card-gradient p-8">
               <h3 className="text-2xl font-bold text-white mb-6">
-                Proceso Simple
+                Proceso de Importación
               </h3>
               <div className="space-y-6">
                 {[
                   {
                     step: '1',
-                    title: 'Habla con Nosotros',
-                    desc: 'Contáctanos para cotizar tu envío y resolver todas tus dudas.',
+                    title: 'Contacto y Cotización',
+                    desc: 'Evaluamos tu vehículo y te damos una cotización detallada.',
                   },
                   {
                     step: '2',
-                    title: 'Prepara tu Envío',
-                    desc: 'Te guiamos en cómo empacar tus artículos.',
+                    title: 'Documentación',
+                    desc: 'Recopilamos y validamos todos los documentos necesarios.',
                   },
                   {
                     step: '3',
-                    title: 'Rastrea con Tranquilidad',
-                    desc: 'Sigue tu paquete en tiempo real hasta que llegue.',
+                    title: 'Trámite Aduanal',
+                    desc: 'Procesamos el pedimento y liberamos tu vehículo en aduana.',
+                  },
+                  {
+                    step: '4',
+                    title: 'Entrega',
+                    desc: 'Recibes tu vehículo nacionalizado y listo para circular.',
                   },
                 ].map((item, index) => (
                   <div key={index} className="flex items-start space-x-4">
@@ -305,11 +306,11 @@ export default function QuoteSection() {
             {/* Contact CTA */}
             <div className="card-gradient p-8 border-l-4 border-primary-500">
               <h3 className="text-xl font-bold text-white mb-4">
-                ¿Prefieres hablar con un experto?
+                ¿Prefieres hablar con un agente aduanal?
               </h3>
               <p className="text-slate-300 mb-6">
-                Nuestro equipo está listo para ayudarte con una cotización
-                personalizada.
+                Nuestro equipo de expertos está listo para asesorarte en tu
+                proceso de importación.
               </p>
               <a
                 href="tel:+13465801238"
